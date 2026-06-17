@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-git)",
+      "Bash(npm install *)",
+      "Bash(systemctl list-units *)",
+      "Read(//etc/nginx/sites-enabled/**)",
+      "Read(//etc/**)",
+      "Bash(pm2 list *)",
+      "Bash(systemctl status *)",
+      "Bash(psql --version)",
+      "Bash(pg_lsclusters)",
+      "Bash(npm uninstall *)",
+      "Bash(npx prisma *)",
+      "Bash(sudo -u postgres psql -c \"CREATE DATABASE room_booking;\")",
+      "Bash(sudo -u postgres psql -c \"CREATE USER room_booking_user WITH PASSWORD 'rb_secure_2026';\")",
+      "Bash(sudo -u postgres psql -c \"GRANT ALL PRIVILEGES ON DATABASE room_booking TO room_booking_user;\")",
+      "Bash(sudo -u postgres psql -c \"ALTER DATABASE room_booking OWNER TO room_booking_user;\")",
+      "Bash(sudo -u postgres psql -c \"ALTER USER room_booking_user CREATEDB;\")",
+      "Bash(npm run *)",
+      "Bash(pm2 start *)",
+      "Bash(pm2 save *)",
+      "Bash(curl -s http://localhost:3002)",
+      "Bash(certbot certonly *)",
+      "Bash(openssl x509 *)",
+      "Bash(mkdir -p /etc/ssl/room-booking)",
+      "Bash(openssl req *)",
+      "Bash(ln -sf /etc/nginx/sites-available/room-booking.luwilab.work /etc/nginx/sites-enabled/room-booking.luwilab.work)",
+      "Bash(nginx -t)",
+      "Bash(systemctl reload *)",
+      "Bash(openssl rand *)",
+      "Bash(pm2 restart *)",
+      "Bash(pm2 status *)",
+      "Bash(curl -sI http://localhost:3002)",
+      "Bash(curl -sI https://room-booking.luwilab.work)"
+    ]
+  }
+}

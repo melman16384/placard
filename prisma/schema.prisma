@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  name      String?
+  password  String
+  role      Role      @default(USER)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  bookings  Booking[]
+
+  @@map("users")
+}
+
+model Room {
+  id                   String    @id @default(cuid())
+  name                 String
+  capacity             Int
+  floor                String?
+  amenities            String[]
+  description          String?
+  color                String    @default("#3B82F6")
+  msEmail              String?   @unique  // Exchange room mailbox address
+  graphSubscriptionId  String?            // Graph change notification subscription
+  subscriptionExpiry   DateTime?          // When the subscription expires
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  bookings             Booking[]
+
+  @@map("rooms")
+}
+
+model Booking {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  startTime   DateTime
+  endTime     DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  room        Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  roomId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+
+  @@map("bookings")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
