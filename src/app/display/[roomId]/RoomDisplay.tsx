@@ -65,7 +65,7 @@ export function RoomDisplay({ room: initialRoom, bookings: initialBookings }: Ro
   useEffect(() => {
     fetchData()
     const dataInterval = setInterval(fetchData, 60_000) // refresh data every 60s
-    const clockInterval = setInterval(() => setNow(new Date()), 1_000)
+    const clockInterval = setInterval(() => setNow(new Date()), 60_000)
     return () => {
       clearInterval(dataInterval)
       clearInterval(clockInterval)
