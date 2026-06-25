@@ -3,6 +3,10 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
 export async function GET() {
+  const session = await auth()
+  if (!session || session.user.role !== 'ADMIN') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+  }
   const rooms = await prisma.room.findMany({
     orderBy: { name: 'asc' },
   })

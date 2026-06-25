@@ -15,6 +15,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'roomId required' }, { status: 400 })
   }
 
+  const ALLOWED_DURATIONS = [30, 60, 90]
+  if (!ALLOWED_DURATIONS.includes(Number(durationMinutes))) {
+    return NextResponse.json({ error: 'durationMinutes must be 30, 60, or 90' }, { status: 400 })
+  }
+
   const room = await prisma.room.findUnique({ where: { id: roomId } })
   if (!room) return NextResponse.json({ error: 'Room not found' }, { status: 404 })
   if (!room.msEmail) {
@@ -27,14 +32,14 @@ export async function POST(req: Request) {
   // Check for overlapping events in Exchange
   const events = await getRoomEventsToday(room.msEmail)
   const conflict = events.find((e) => {
-    const start = new Date(e.start.dateTime + (e.start.timeZone === 'UTC' ? 'Z' : ''))
-    const end = new Date(e.end.dateTime + (e.end.timeZone === 'UTC' ? 'Z' : ''))
+    const start = new Date(e.start.dateTime + 'Z')
+    const end = new Date(e.end.dateTime + 'Z')
     return start < endTime && end > now
   })
 
   if (conflict) {
     return NextResponse.json(
-      { error: `Raum belegt bis ${new Date(conflict.end.dateTime + 'Z').toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr` },
+      { error: `Raum belegt bis ${new Date(conflict.end.dateTime + 'Z').toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })} Uhr` },
       { status: 409 }
     )
   }

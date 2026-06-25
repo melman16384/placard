@@ -46,6 +46,7 @@ export async function getRoomEventsToday(roomEmail: string): Promise<GraphEvent[
 
   const result = await graphClient
     .api(`/users/${roomEmail}/calendar/calendarView`)
+    .header('Prefer', 'outlook.timezone="UTC"')
     .query({
       startDateTime: startOfDay.toISOString(),
       endDateTime: endOfDay.toISOString(),

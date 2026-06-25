@@ -14,14 +14,14 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json()
-  const clientState = body?.value?.[0]?.clientState
+  const notifications: { clientState?: string; resource?: string }[] = body?.value ?? []
 
-  if (clientState !== process.env.GRAPH_WEBHOOK_SECRET) {
+  // Verify clientState on every notification
+  const secret = process.env.GRAPH_WEBHOOK_SECRET
+  if (!notifications.length || notifications.some((n) => n.clientState !== secret)) {
     return NextResponse.json({ error: 'Invalid client state' }, { status: 401 })
   }
 
-  // Process each notification
-  const notifications = body?.value ?? []
   for (const notification of notifications) {
     const resource: string = notification.resource ?? ''
     // resource looks like: "Users/abc123/Events/event456"

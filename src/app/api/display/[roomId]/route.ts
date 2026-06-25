@@ -22,8 +22,8 @@ export async function GET(
       const toUtc = (e: GraphEvent) => ({
         id: e.id,
         title: e.subject,
-        startTime: new Date(e.start.dateTime + (e.start.timeZone === 'UTC' ? 'Z' : '')),
-        endTime: new Date(e.end.dateTime + (e.end.timeZone === 'UTC' ? 'Z' : '')),
+        startTime: new Date(e.start.dateTime + 'Z'),
+        endTime: new Date(e.end.dateTime + 'Z'),
         organizer: e.organizer?.emailAddress.name ?? null,
       })
 

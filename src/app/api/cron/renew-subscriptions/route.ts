@@ -7,8 +7,10 @@ const CRON_SECRET = process.env.CRON_SECRET
 
 /** Called by cron every 2 hours to renew expiring Graph subscriptions */
 export async function GET(req: Request) {
-  const auth = req.headers.get('authorization')
-  if (CRON_SECRET && auth !== `Bearer ${CRON_SECRET}`) {
+  if (!CRON_SECRET) {
+    return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 })
+  }
+  if (req.headers.get('authorization') !== `Bearer ${CRON_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

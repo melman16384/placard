@@ -33,8 +33,10 @@ export function RoomAdminPanel({ rooms: initialRooms }: { rooms: Room[] }) {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [form, setForm] = useState(emptyForm)
   const [loading, setLoading] = useState(false)
+  const [formError, setFormError] = useState<string | null>(null)
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [subscribing, setSubscribing] = useState(false)
+  const [renewing, setRenewing] = useState(false)
   const [subscribeMsg, setSubscribeMsg] = useState<string | null>(null)
   const [testResults, setTestResults] = useState<Record<string, { ok: boolean; msg: string } | 'loading'>>({})
 
@@ -50,11 +52,11 @@ export function RoomAdminPanel({ rooms: initialRooms }: { rooms: Room[] }) {
     }))
   }
 
-  function startCreate() { setForm(emptyForm); setEditingId(null); setShowForm(true) }
+  function startCreate() { setForm(emptyForm); setEditingId(null); setFormError(null); setShowForm(true) }
 
   function startEdit(room: Room) {
     setForm({ name: room.name, capacity: room.capacity, floor: room.floor || '', amenities: room.amenities, description: room.description || '', color: room.color, msEmail: room.msEmail || '' })
-    setEditingId(room.id); setShowForm(true)
+    setEditingId(room.id); setFormError(null); setShowForm(true)
   }
 
   function toggleAmenity(a: string) {
@@ -62,7 +64,7 @@ export function RoomAdminPanel({ rooms: initialRooms }: { rooms: Room[] }) {
   }
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault(); setLoading(true)
+    e.preventDefault(); setLoading(true); setFormError(null)
     const body = { ...form, capacity: Number(form.capacity), msEmail: form.msEmail || null }
     const res = editingId
       ? await fetch(`/api/rooms/${editingId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
@@ -73,6 +75,9 @@ export function RoomAdminPanel({ rooms: initialRooms }: { rooms: Room[] }) {
       if (editingId) setRooms((p) => p.map((r) => r.id === editingId ? { ...r, ...updated } : r))
       else setRooms((p) => [...p, { ...updated, _count: { bookings: 0 } }])
       setShowForm(false); router.refresh()
+    } else {
+      const data = await res.json().catch(() => ({}))
+      setFormError(data.error || 'Speichern fehlgeschlagen')
     }
   }
 
@@ -91,15 +96,31 @@ export function RoomAdminPanel({ rooms: initialRooms }: { rooms: Room[] }) {
     setSubscribing(false); router.refresh()
   }
 
+  async function handleRenew() {
+    setRenewing(true); setSubscribeMsg(null)
+    const res = await fetch('/api/graph/subscribe', { method: 'PUT' })
+    const data = await res.json()
+    const renewed = data.results?.filter((r: { status: string }) => r.status === 'renewed').length ?? 0
+    const err = data.results?.filter((r: { status: string }) => r.status === 'error').length ?? 0
+    setSubscribeMsg(renewed === 0 ? 'Keine ablaufenden Webhooks' : `${renewed} erneuert${err > 0 ? `, ${err} Fehler` : ''}`)
+    setRenewing(false); router.refresh()
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {rooms.some((r) => r.msEmail) && (
-            <Button variant="secondary" size="sm" onClick={handleSubscribeAll} disabled={subscribing}>
-              <RefreshCw className={`w-4 h-4 mr-1.5 ${subscribing ? 'animate-spin' : ''}`} />
-              Webhooks aktivieren
-            </Button>
+            <>
+              <Button variant="secondary" size="sm" onClick={handleRenew} disabled={renewing || subscribing}>
+                <RefreshCw className={`w-4 h-4 mr-1.5 ${renewing ? 'animate-spin' : ''}`} />
+                Webhooks erneuern
+              </Button>
+              <Button variant="secondary" size="sm" onClick={handleSubscribeAll} disabled={subscribing || renewing}>
+                <RefreshCw className={`w-4 h-4 mr-1.5 ${subscribing ? 'animate-spin' : ''}`} />
+                Webhooks neu aktivieren
+              </Button>
+            </>
           )}
           {subscribeMsg && <span className="text-sm text-gray-500">{subscribeMsg}</span>}
         </div>
@@ -116,6 +137,11 @@ export function RoomAdminPanel({ rooms: initialRooms }: { rooms: Room[] }) {
             <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {formError && (
+              <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
+                {formError}
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-4">
               <Input id="name" label="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
               <Input id="capacity" label="Kapazität" type="number" min="1" value={form.capacity} onChange={(e) => setForm({ ...form, capacity: Number(e.target.value) })} required />

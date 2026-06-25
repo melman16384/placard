@@ -65,7 +65,7 @@ export function RoomDisplay({ room: initialRoom, bookings: initialBookings }: Ro
   useEffect(() => {
     fetchData()
     const dataInterval = setInterval(fetchData, 60_000) // refresh data every 60s
-    const clockInterval = setInterval(() => setNow(new Date()), 30_000)
+    const clockInterval = setInterval(() => setNow(new Date()), 1_000)
     return () => {
       clearInterval(dataInterval)
       clearInterval(clockInterval)
@@ -253,7 +253,7 @@ export function RoomDisplay({ room: initialRoom, bookings: initialBookings }: Ro
         <p className="text-sm text-gray-400">
           {format(now, 'EEEE, dd. MMMM yyyy', { locale: de })}
         </p>
-        <p className="text-2xl font-mono font-semibold text-gray-700">
+        <p className="text-2xl font-mono font-semibold text-gray-700" suppressHydrationWarning>
           {format(now, 'HH:mm')}
         </p>
       </div>
