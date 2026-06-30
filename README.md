@@ -1,4 +1,4 @@
-# Raumbuchungssystem
+# Placard
 
 Joan-Tablet-Ersatz auf Basis von Raspberry Pi + eInk-Display, angebunden an Microsoft Exchange Online über die Microsoft Graph API.
 
@@ -22,7 +22,7 @@ Vollständige Dokumentation im [`docs/`](docs/README.md)-Verzeichnis:
 ## Schnellstart
 
 ```bash
-cd /opt/room-booking
+cd /opt/placard
 npm install
 npm run build
 pm2 start ecosystem.config.js

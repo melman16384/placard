@@ -25,7 +25,7 @@ export function Navbar() {
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2 font-semibold text-gray-900">
             <Building2 className="w-5 h-5 text-blue-600" />
-            <span>Raumbuchung</span>
+            <span>Placard</span>
             <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium ml-1">Admin</span>
           </div>
           <div className="flex gap-1">

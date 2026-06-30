@@ -1,4 +1,4 @@
-# Raumbuchungssystem — Dokumentation
+# Placard — Dokumentation
 
 Joan-Tablet-Ersatz auf Basis von Raspberry Pi + eInk-Display, angebunden an Microsoft Exchange Online über die Microsoft Graph API.
 
@@ -31,4 +31,4 @@ Exchange Online ──► Microsoft Graph API ──► Middleware (Next.js)
 
 - **Server:** Port 3002, via PM2, hinter Nginx (SSL)
 - **Datenbank:** PostgreSQL 16, lokal, Benutzer `room_booking_user`
-- **Prozess:** `pm2 status room-booking`
+- **Prozess:** `pm2 status placard`

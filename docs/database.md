@@ -8,7 +8,7 @@
 - **Host:** `localhost:5432`
 - **ORM:** Prisma 5
 
-Schema: `/opt/room-booking/prisma/schema.prisma`
+Schema: `/opt/placard/prisma/schema.prisma`
 
 ---
 
@@ -102,7 +102,7 @@ npx prisma migrate status
 npx prisma generate
 ```
 
-Migrationen liegen in: `/opt/room-booking/prisma/migrations/`
+Migrationen liegen in: `/opt/placard/prisma/migrations/`
 
 ---
 

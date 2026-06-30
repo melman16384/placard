@@ -1,4 +1,4 @@
-# Raum-Display Bauplan — Raspberry Pi + eInk
+# Placard Display — Raspberry Pi + eInk
 
 ## Ziel
 Joan-ähnliches Raumdisplay mit mindestens 1 Woche Akkulaufzeit.

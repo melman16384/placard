@@ -101,7 +101,7 @@ export default async function SetupPage() {
             <div>
               <p>Fülle das Formular aus:</p>
               <ul className="mt-2 space-y-1 ml-4 list-disc text-gray-600">
-                <li><strong>Name:</strong> z.B. <code>Raumbuchung Middleware</code></li>
+                <li><strong>Name:</strong> z.B. <code>Placard</code></li>
                 <li><strong>Kontotyp:</strong> Nur Konten in diesem Organisationsverzeichnis</li>
                 <li><strong>Redirect URI:</strong> leer lassen</li>
               </ul>
@@ -173,12 +173,12 @@ GRAPH_WEBHOOK_SECRET="ein-zufälliges-passwort"`}</pre>
           <p className="text-gray-600">App neu starten damit die Werte geladen werden:</p>
 
           <div className="relative">
-            <CopyButton text="pm2 restart room-booking" />
-            <pre className="bg-gray-900 text-gray-100 rounded-lg px-4 py-3 text-xs overflow-x-auto pr-16">{`pm2 restart room-booking`}</pre>
+            <CopyButton text="pm2 restart placard" />
+            <pre className="bg-gray-900 text-gray-100 rounded-lg px-4 py-3 text-xs overflow-x-auto pr-16">{`pm2 restart placard`}</pre>
           </div>
 
           <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-xs text-amber-800">
-            <strong>Wichtig:</strong> Nach jedem Ändern der .env.local muss die App neu gestartet werden (<code>pm2 restart room-booking</code>). Den Status siehst du auf der <a href="/status" className="underline">Statusseite</a>.
+            <strong>Wichtig:</strong> Nach jedem Ändern der .env.local muss die App neu gestartet werden (<code>pm2 restart placard</code>). Den Status siehst du auf der <a href="/status" className="underline">Statusseite</a>.
           </div>
         </div>
       </SetupStep>
@@ -252,10 +252,10 @@ GRAPH_WEBHOOK_SECRET="ein-zufälliges-passwort"`}</pre>
             <p className="font-medium text-gray-700">Automatische Erneuerung einrichten (empfohlen)</p>
             <p className="text-gray-500">Graph-Webhooks laufen nach max. 3 Tagen ab. Richte einmalig einen Cron-Job ein:</p>
             <div className="relative">
-              <CopyButton text={`(crontab -l 2>/dev/null; echo "0 */6 * * * curl -s ${process.env.NEXT_PUBLIC_APP_URL}/api/cron/renew-subscriptions >> /var/log/room-booking-cron.log 2>&1") | crontab -`} />
+              <CopyButton text={`(crontab -l 2>/dev/null; echo "0 */6 * * * curl -s ${process.env.NEXT_PUBLIC_APP_URL}/api/cron/renew-subscriptions >> /var/log/placard-cron.log 2>&1") | crontab -`} />
               <pre className="bg-gray-900 text-gray-100 rounded px-3 py-2 text-xs overflow-x-auto pr-12">{`(crontab -l 2>/dev/null; echo "0 */6 * * * curl -s \\
   ${process.env.NEXT_PUBLIC_APP_URL}/api/cron/renew-subscriptions \\
-  >> /var/log/room-booking-cron.log 2>&1") | crontab -`}</pre>
+  >> /var/log/placard-cron.log 2>&1") | crontab -`}</pre>
             </div>
           </div>
 

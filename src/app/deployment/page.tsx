@@ -148,7 +148,7 @@ p.user.create({
       <div className="no-print sticky top-0 z-20 bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2 text-gray-700 font-semibold">
           <Server className="w-5 h-5 text-blue-600" />
-          Raumbuchung — Server Deployment
+          Placard — Server Deployment
         </div>
         <div className="flex items-center gap-3">
           <a href="/setup" className="text-sm text-blue-600 hover:underline">App-Einrichtung →</a>
@@ -266,17 +266,17 @@ GRANT ALL ON SCHEMA public TO room_booking_user;
           {/* ── Step 6 ── */}
           <Step n={6} title="Projektdateien deployen">
             <h3>Option A — Via Git (empfohlen)</h3>
-            <Cmd copy="sudo mkdir -p /opt/room-booking && sudo chown $USER:$USER /opt/room-booking && git clone https://github.com/DEIN_USERNAME/room-booking.git /opt/room-booking">{`sudo mkdir -p /opt/room-booking
-sudo chown $USER:$USER /opt/room-booking
-git clone https://github.com/DEIN_USERNAME/room-booking.git /opt/room-booking`}</Cmd>
+            <Cmd copy="sudo mkdir -p /opt/placard && sudo chown $USER:$USER /opt/placard && git clone https://github.com/DEIN_USERNAME/placard.git /opt/placard">{`sudo mkdir -p /opt/placard
+sudo chown $USER:$USER /opt/placard
+git clone https://github.com/DEIN_USERNAME/placard.git /opt/placard`}</Cmd>
 
             <h3>Option B — Dateien hochladen (rsync)</h3>
             <p>Von der lokalen Entwicklungsmaschine:</p>
             <Cmd>{`rsync -avz --exclude node_modules --exclude .next --exclude .env.local \\
-  ./  user@SERVER_IP:/opt/room-booking/`}</Cmd>
+  ./  user@SERVER_IP:/opt/placard/`}</Cmd>
 
             <h3>Abhängigkeiten installieren</h3>
-            <Cmd copy="cd /opt/room-booking && npm install">{`cd /opt/room-booking
+            <Cmd copy="cd /opt/placard && npm install">{`cd /opt/placard
 npm install`}</Cmd>
           </Step>
 
@@ -284,14 +284,14 @@ npm install`}</Cmd>
 
           {/* ── Step 7 ── */}
           <Step n={7} title="Umgebungsvariablen konfigurieren">
-            <p>Datei <code>/opt/room-booking/.env.local</code> erstellen und alle Platzhalter ersetzen:</p>
-            <Cmd copy={`nano /opt/room-booking/.env.local`}>{`nano /opt/room-booking/.env.local`}</Cmd>
+            <p>Datei <code>/opt/placard/.env.local</code> erstellen und alle Platzhalter ersetzen:</p>
+            <Cmd copy={`nano /opt/placard/.env.local`}>{`nano /opt/placard/.env.local`}</Cmd>
             <Cmd copy={envLocal}>{envLocal}</Cmd>
             <p>Secrets generieren (je einmal ausführen):</p>
             <Cmd copy="openssl rand -base64 32">{`openssl rand -base64 32   # für NEXTAUTH_SECRET
 openssl rand -base64 32   # für GRAPH_WEBHOOK_SECRET
 openssl rand -base64 32   # für CRON_SECRET`}</Cmd>
-            <Cmd copy="chmod 600 /opt/room-booking/.env.local">{`chmod 600 /opt/room-booking/.env.local`}</Cmd>
+            <Cmd copy="chmod 600 /opt/placard/.env.local">{`chmod 600 /opt/placard/.env.local`}</Cmd>
           </Step>
 
           <hr />
@@ -306,7 +306,7 @@ openssl rand -base64 32   # für CRON_SECRET`}</Cmd>
               <li>
                 <strong>Microsoft Entra ID → App-Registrierungen → Neue Registrierung</strong>
                 <ul>
-                  <li>Name: z.B. <code>Raumbuchungssystem</code></li>
+                  <li>Name: z.B. <code>Placard</code></li>
                   <li>Kontotyp: <em>Nur diese Organisation</em></li>
                   <li>Redirect URI: leer lassen</li>
                 </ul>
@@ -329,14 +329,14 @@ openssl rand -base64 32   # für CRON_SECRET`}</Cmd>
                 </ul>
               </li>
             </ol>
-            <Info>Alle drei Werte in <code>.env.local</code> eintragen (Schritt 7) und danach mit <code>pm2 restart room-booking</code> neu starten.</Info>
+            <Info>Alle drei Werte in <code>.env.local</code> eintragen (Schritt 7) und danach mit <code>pm2 restart placard</code> neu starten.</Info>
           </Step>
 
           <hr />
 
           {/* ── Step 9 ── */}
           <Step n={9} title="Datenbank initialisieren">
-            <Cmd copy="cd /opt/room-booking && npx prisma migrate deploy">{`cd /opt/room-booking
+            <Cmd copy="cd /opt/placard && npx prisma migrate deploy">{`cd /opt/placard
 npx prisma migrate deploy`}</Cmd>
             <p>Prüfen ob Tabellen angelegt wurden:</p>
             <Cmd>{`psql -U room_booking_user -d room_booking -c "\\dt"`}</Cmd>
@@ -347,13 +347,13 @@ npx prisma migrate deploy`}</Cmd>
           {/* ── Step 10 ── */}
           <Step n={10} title="Anwendung bauen & starten">
             <h3>Build</h3>
-            <Cmd copy="cd /opt/room-booking && npm run build">{`cd /opt/room-booking
+            <Cmd copy="cd /opt/placard && npm run build">{`cd /opt/placard
 npm run build`}</Cmd>
             <p className="text-sm text-gray-500">Der Build dauert je nach Server 1–5 Minuten.</p>
 
             <h3>PM2 starten</h3>
-            <Cmd copy="pm2 start /opt/room-booking/ecosystem.config.js">{`pm2 start /opt/room-booking/ecosystem.config.js
-pm2 status   # → room-booking: online, 2 Instanzen`}</Cmd>
+            <Cmd copy="pm2 start /opt/placard/ecosystem.config.js">{`pm2 start /opt/placard/ecosystem.config.js
+pm2 status: online, 2 Instanzen`}</Cmd>
 
             <h3>Autostart nach Reboot</h3>
             <Cmd copy="pm2 save && pm2 startup">{`pm2 save
@@ -370,10 +370,10 @@ pm2 startup
 
           {/* ── Step 11 ── */}
           <Step n={11} title="Nginx konfigurieren">
-            <Cmd copy="sudo nano /etc/nginx/sites-available/room-booking">{`sudo nano /etc/nginx/sites-available/room-booking`}</Cmd>
+            <Cmd copy="sudo nano /etc/nginx/sites-available/placard">{`sudo nano /etc/nginx/sites-available/placard`}</Cmd>
             <Cmd copy={nginxConf}>{nginxConf}</Cmd>
             <Note>Die SSL-Zeilen im <code>443</code>-Block werden in Schritt 12 je nach gewählter Variante angepasst.</Note>
-            <Cmd copy="sudo ln -s /etc/nginx/sites-available/room-booking /etc/nginx/sites-enabled/ && sudo nginx -t && sudo systemctl reload nginx">{`sudo ln -s /etc/nginx/sites-available/room-booking /etc/nginx/sites-enabled/
+            <Cmd copy="sudo ln -s /etc/nginx/sites-available/placard /etc/nginx/sites-enabled/ && sudo nginx -t && sudo systemctl reload nginx">{`sudo ln -s /etc/nginx/sites-available/placard /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl reload nginx`}</Cmd>
           </Step>
@@ -420,9 +420,9 @@ sudo ufw status`}</Cmd>
             <h3>Automatische Erneuerung (empfohlen)</h3>
             <Cmd copy="crontab -e">{`crontab -e`}</Cmd>
             <p>Zeile hinzufügen:</p>
-            <Cmd copy={`0 */6 * * * curl -s -H "x-cron-secret: CRON_SECRET" ${appUrl}/api/cron/renew-subscriptions >> /var/log/room-booking-cron.log 2>&1`}>{`0 */6 * * * curl -s -H "x-cron-secret: CRON_SECRET" \\
+            <Cmd copy={`0 */6 * * * curl -s -H "x-cron-secret: CRON_SECRET" ${appUrl}/api/cron/renew-subscriptions >> /var/log/placard-cron.log 2>&1`}>{`0 */6 * * * curl -s -H "x-cron-secret: CRON_SECRET" \\
   ${appUrl}/api/cron/renew-subscriptions \\
-  >> /var/log/room-booking-cron.log 2>&1`}</Cmd>
+  >> /var/log/placard-cron.log 2>&1`}</Cmd>
             <Note><strong>CRON_SECRET</strong> durch den Wert aus <code>.env.local</code> ersetzen.</Note>
           </Step>
 
@@ -432,7 +432,7 @@ sudo ufw status`}</Cmd>
           <Step n={16} title="Deployment verifizieren">
             <Cmd>{`# 1. PM2-Status
 pm2 status
-# → room-booking: online, 2 Instanzen
+# → placard: online, 2 Instanzen
 
 # 2. App antwortet
 curl -I http://localhost:3002
@@ -450,7 +450,7 @@ psql -U room_booking_user -d room_booking -c "SELECT COUNT(*) FROM users;"
 sudo tail -20 /var/log/nginx/error.log
 
 # 6. App-Log
-pm2 logs room-booking --lines 20 --nostream`}</Cmd>
+pm2 logs placard --lines 20 --nostream`}</Cmd>
             <Info>
               <strong>Abschließend im Browser:</strong>
               <ul className="mt-1 space-y-0.5 list-disc ml-4">
@@ -465,7 +465,7 @@ pm2 logs room-booking --lines 20 --nostream`}</Cmd>
 
           {/* ── Step 17 ── */}
           <Step n={17} title="Updates einspielen">
-            <Cmd copy={`cd /opt/room-booking\ngit pull\nnpm install\nnpx prisma migrate deploy\nnpm run build\npm2 reload room-booking`}>{`cd /opt/room-booking
+            <Cmd copy={`cd /opt/placard\ngit pull\nnpm install\nnpx prisma migrate deploy\nnpm run build\npm2 reload placard`}>{`cd /opt/placard
 
 # Code holen
 git pull
@@ -480,7 +480,7 @@ npx prisma migrate deploy
 npm run build
 
 # Rolling Restart — zero downtime
-pm2 reload room-booking`}</Cmd>
+pm2 reload placard`}</Cmd>
             <Info><code>pm2 reload</code> (nicht <code>restart</code>) nutzt den Cluster-Modus für Rolling Restarts ohne Downtime.</Info>
           </Step>
 

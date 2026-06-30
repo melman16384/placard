@@ -11,7 +11,7 @@ export default function GuidePage() {
       <div className="no-print sticky top-0 z-10 bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2 text-gray-700 font-semibold">
           <Building2 className="w-5 h-5 text-blue-600" />
-          Raumbuchung — Tablet Bauanleitung
+          Placard — Display Bauanleitung
         </div>
         <PrintButton />
       </div>

@@ -81,7 +81,7 @@ export async function createRoomEvent(
       },
       body: {
         contentType: 'text',
-        content: `Ad-hoc Buchung über Raumbuchungssystem — ${organizerName}`,
+        content: `Ad-hoc Buchung über Placard — ${organizerName}`,
       },
       showAs: 'busy',
     })

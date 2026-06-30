@@ -9,7 +9,7 @@ const geist = Geist({
 })
 
 export const metadata: Metadata = {
-  title: 'Raumbuchung',
+  title: 'Placard',
   description: 'Raumverwaltung und Buchungssystem',
 }
 

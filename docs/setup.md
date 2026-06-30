@@ -12,7 +12,7 @@
 ## 1. Repository & Abhängigkeiten
 
 ```bash
-cd /opt/room-booking
+cd /opt/placard
 npm install
 ```
 
@@ -32,7 +32,7 @@ ALTER USER room_booking_user CREATEDB;  -- für prisma migrate dev
 
 ## 3. Umgebungsvariablen
 
-Datei: `/opt/room-booking/.env.local`
+Datei: `/opt/placard/.env.local`
 
 ```env
 # Datenbank
@@ -58,12 +58,12 @@ GRAPH_WEBHOOK_SECRET="zufälliges-passwort"
 CRON_SECRET="weiteres-zufälliges-passwort"
 ```
 
-Nach jeder Änderung: `pm2 restart room-booking`
+Nach jeder Änderung: `pm2 restart placard`
 
 ## 4. Azure AD App registrieren
 
 1. **Azure Portal** → Microsoft Entra ID → App-Registrierungen → Neue Registrierung
-2. Name: z.B. `Raumbuchung Middleware`, Kontotyp: Nur diese Organisation
+2. Name: z.B. `Placard Middleware`, Kontotyp: Nur diese Organisation
 3. **API-Berechtigungen** → Microsoft Graph → Anwendungsberechtigungen:
    - `Calendars.ReadWrite`
    - `Calendars.Read`
@@ -75,7 +75,7 @@ Nach jeder Änderung: `pm2 restart room-booking`
 ## 5. Datenbankschema anlegen
 
 ```bash
-cd /opt/room-booking
+cd /opt/placard
 npx prisma migrate deploy   # Produktion
 # oder:
 npx prisma migrate dev      # Entwicklung (erstellt Migration)
@@ -104,8 +104,8 @@ server {
     listen 443 ssl;
     server_name DEINE_DOMAIN.de;
 
-    ssl_certificate     /etc/ssl/room-booking/cert.pem;
-    ssl_certificate_key /etc/ssl/room-booking/key.pem;
+    ssl_certificate     /etc/ssl/placard/cert.pem;
+    ssl_certificate_key /etc/ssl/placard/key.pem;
 
     location / {
         proxy_pass         http://localhost:3002;
@@ -127,10 +127,10 @@ nginx -t && systemctl reload nginx
 **SSL:** Cloudflare handelt das Client-SSL. Nginx nutzt ein selbstsigniertes Zertifikat für die Origin-Verbindung — das ist mit Cloudflare als Proxy korrekt.
 
 ```bash
-mkdir -p /etc/ssl/room-booking
+mkdir -p /etc/ssl/placard
 openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
-  -keyout /etc/ssl/room-booking/key.pem \
-  -out    /etc/ssl/room-booking/cert.pem \
+  -keyout /etc/ssl/placard/key.pem \
+  -out    /etc/ssl/placard/cert.pem \
   -subj   "/CN=DEINE_DOMAIN.de"
 ```
 
@@ -139,7 +139,7 @@ openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
 Die Registrierungsseite existiert nicht mehr. Erster Admin über die Kommandozeile:
 
 ```bash
-cd /opt/room-booking
+cd /opt/placard
 node -e "
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');

@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'room-booking',
+      name: 'placard',
       script: 'node_modules/.bin/next',
       args: 'start',
       cwd: '/opt/room-booking',

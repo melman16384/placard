@@ -44,9 +44,9 @@ const NGINX_SSL_CUSTOM = `server {
     listen [::]:443 ssl;
     server_name DEINE_DOMAIN.de;
 
-    ssl_certificate     /etc/ssl/room-booking/fullchain.pem;
-    ssl_certificate_key /etc/ssl/room-booking/privkey.pem;
-    ssl_dhparam         /etc/ssl/room-booking/dhparam.pem;
+    ssl_certificate     /etc/ssl/placard/fullchain.pem;
+    ssl_certificate_key /etc/ssl/placard/privkey.pem;
+    ssl_dhparam         /etc/ssl/placard/dhparam.pem;
     ssl_protocols       TLSv1.2 TLSv1.3;
     ssl_ciphers         ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384;
     ssl_prefer_server_ciphers off;
@@ -131,11 +131,11 @@ export function SslTabs() {
 
           <p className="text-sm text-gray-700 font-medium">2. Zertifikat auf den Server kopieren:</p>
           <div className="relative">
-            <CopyButton text={`sudo mkdir -p /etc/ssl/room-booking\nsudo nano /etc/ssl/room-booking/fullchain.pem   # Zertifikat einfügen\nsudo nano /etc/ssl/room-booking/privkey.pem    # Privaten Schlüssel einfügen\nsudo chmod 600 /etc/ssl/room-booking/privkey.pem`} />
-            <pre className="bg-gray-900 text-gray-100 rounded-lg px-4 py-3 text-xs overflow-x-auto pr-12">{`sudo mkdir -p /etc/ssl/room-booking
-sudo nano /etc/ssl/room-booking/fullchain.pem   # Zertifikat einfügen
-sudo nano /etc/ssl/room-booking/privkey.pem    # Privaten Schlüssel einfügen
-sudo chmod 600 /etc/ssl/room-booking/privkey.pem`}</pre>
+            <CopyButton text={`sudo mkdir -p /etc/ssl/placard\nsudo nano /etc/ssl/placard/fullchain.pem   # Zertifikat einfügen\nsudo nano /etc/ssl/placard/privkey.pem    # Privaten Schlüssel einfügen\nsudo chmod 600 /etc/ssl/placard/privkey.pem`} />
+            <pre className="bg-gray-900 text-gray-100 rounded-lg px-4 py-3 text-xs overflow-x-auto pr-12">{`sudo mkdir -p /etc/ssl/placard
+sudo nano /etc/ssl/placard/fullchain.pem   # Zertifikat einfügen
+sudo nano /etc/ssl/placard/privkey.pem    # Privaten Schlüssel einfügen
+sudo chmod 600 /etc/ssl/placard/privkey.pem`}</pre>
           </div>
 
           <p className="text-sm text-gray-700 font-medium">3. Nginx-Konfiguration:</p>
@@ -158,17 +158,17 @@ sudo chmod 600 /etc/ssl/room-booking/privkey.pem`}</pre>
           <p className="text-sm text-gray-700 font-medium">1. Fullchain aus Zertifikat + CA-Bundle zusammenbauen:</p>
           <p className="text-xs text-gray-500">Reihenfolge: erst dein Zertifikat, dann die Zwischenzertifikate der CA.</p>
           <div className="relative">
-            <CopyButton text={`sudo mkdir -p /etc/ssl/room-booking\nsudo bash -c 'cat deine-domain.crt ca-bundle.crt > /etc/ssl/room-booking/fullchain.pem'\nsudo cp deine-domain.key /etc/ssl/room-booking/privkey.pem\nsudo chmod 600 /etc/ssl/room-booking/privkey.pem`} />
-            <pre className="bg-gray-900 text-gray-100 rounded-lg px-4 py-3 text-xs overflow-x-auto pr-12">{`sudo mkdir -p /etc/ssl/room-booking
-sudo bash -c 'cat deine-domain.crt ca-bundle.crt > /etc/ssl/room-booking/fullchain.pem'
-sudo cp deine-domain.key /etc/ssl/room-booking/privkey.pem
-sudo chmod 600 /etc/ssl/room-booking/privkey.pem`}</pre>
+            <CopyButton text={`sudo mkdir -p /etc/ssl/placard\nsudo bash -c 'cat deine-domain.crt ca-bundle.crt > /etc/ssl/placard/fullchain.pem'\nsudo cp deine-domain.key /etc/ssl/placard/privkey.pem\nsudo chmod 600 /etc/ssl/placard/privkey.pem`} />
+            <pre className="bg-gray-900 text-gray-100 rounded-lg px-4 py-3 text-xs overflow-x-auto pr-12">{`sudo mkdir -p /etc/ssl/placard
+sudo bash -c 'cat deine-domain.crt ca-bundle.crt > /etc/ssl/placard/fullchain.pem'
+sudo cp deine-domain.key /etc/ssl/placard/privkey.pem
+sudo chmod 600 /etc/ssl/placard/privkey.pem`}</pre>
           </div>
 
           <p className="text-sm text-gray-700 font-medium">2. DH-Parameter generieren (einmalig, ~2 Min):</p>
           <div className="relative">
-            <CopyButton text="sudo openssl dhparam -out /etc/ssl/room-booking/dhparam.pem 2048" />
-            <pre className="bg-gray-900 text-gray-100 rounded-lg px-4 py-3 text-xs overflow-x-auto pr-12">{`sudo openssl dhparam -out /etc/ssl/room-booking/dhparam.pem 2048`}</pre>
+            <CopyButton text="sudo openssl dhparam -out /etc/ssl/placard/dhparam.pem 2048" />
+            <pre className="bg-gray-900 text-gray-100 rounded-lg px-4 py-3 text-xs overflow-x-auto pr-12">{`sudo openssl dhparam -out /etc/ssl/placard/dhparam.pem 2048`}</pre>
           </div>
 
           <p className="text-sm text-gray-700 font-medium">3. Nginx-Konfiguration:</p>
@@ -186,7 +186,7 @@ sudo chmod 600 /etc/ssl/room-booking/privkey.pem`}</pre>
 
           <div className="bg-blue-50 border border-blue-100 rounded-lg px-4 py-3 text-xs text-blue-800">
             <strong>Ablaufdatum notieren:</strong>{' '}
-            <code>openssl x509 -enddate -noout -in /etc/ssl/room-booking/fullchain.pem</code>
+            <code>openssl x509 -enddate -noout -in /etc/ssl/placard/fullchain.pem</code>
             {' '}— Erneuerung mind. 30 Tage vorher einplanen.
           </div>
 
@@ -195,13 +195,13 @@ sudo chmod 600 /etc/ssl/room-booking/privkey.pem`}</pre>
             <div className="mt-2 space-y-2">
               <p className="text-xs text-gray-500">Falls der Schlüssel beim Nginx-Start nach einem Passwort fragt, muss es entfernt werden:</p>
               <div className="relative">
-                <CopyButton text="sudo openssl rsa -in deine-domain.key -out /etc/ssl/room-booking/privkey.pem" />
+                <CopyButton text="sudo openssl rsa -in deine-domain.key -out /etc/ssl/placard/privkey.pem" />
                 <pre className="bg-gray-900 text-gray-100 rounded-lg px-4 py-3 text-xs overflow-x-auto pr-12">{`# Prüfen ob verschlüsselt (Zeile "Proc-Type: 4,ENCRYPTED" → ja):
 head -2 deine-domain.key
 
 # Passwort entfernen (wird einmalig abgefragt):
-sudo openssl rsa -in deine-domain.key -out /etc/ssl/room-booking/privkey.pem
-sudo chmod 600 /etc/ssl/room-booking/privkey.pem`}</pre>
+sudo openssl rsa -in deine-domain.key -out /etc/ssl/placard/privkey.pem
+sudo chmod 600 /etc/ssl/placard/privkey.pem`}</pre>
               </div>
             </div>
           </details>
@@ -214,19 +214,19 @@ sudo chmod 600 /etc/ssl/room-booking/privkey.pem`}</pre>
           <p className="text-sm text-gray-600">Für interne Umgebungen oder hinter Cloudflare (als Origin-Zertifikat). Browser zeigen eine Sicherheitswarnung.</p>
 
           <div className="relative">
-            <CopyButton text={`sudo mkdir -p /etc/ssl/room-booking\nsudo openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \\\n  -keyout /etc/ssl/room-booking/privkey.pem \\\n  -out    /etc/ssl/room-booking/fullchain.pem \\\n  -subj   "/CN=DEINE_DOMAIN.de"\nsudo chmod 600 /etc/ssl/room-booking/privkey.pem`} />
-            <pre className="bg-gray-900 text-gray-100 rounded-lg px-4 py-3 text-xs overflow-x-auto pr-12">{`sudo mkdir -p /etc/ssl/room-booking
+            <CopyButton text={`sudo mkdir -p /etc/ssl/placard\nsudo openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \\\n  -keyout /etc/ssl/placard/privkey.pem \\\n  -out    /etc/ssl/placard/fullchain.pem \\\n  -subj   "/CN=DEINE_DOMAIN.de"\nsudo chmod 600 /etc/ssl/placard/privkey.pem`} />
+            <pre className="bg-gray-900 text-gray-100 rounded-lg px-4 py-3 text-xs overflow-x-auto pr-12">{`sudo mkdir -p /etc/ssl/placard
 sudo openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \\
-  -keyout /etc/ssl/room-booking/privkey.pem \\
-  -out    /etc/ssl/room-booking/fullchain.pem \\
+  -keyout /etc/ssl/placard/privkey.pem \\
+  -out    /etc/ssl/placard/fullchain.pem \\
   -subj   "/CN=DEINE_DOMAIN.de"
-sudo chmod 600 /etc/ssl/room-booking/privkey.pem`}</pre>
+sudo chmod 600 /etc/ssl/placard/privkey.pem`}</pre>
           </div>
 
           <p className="text-sm text-gray-700 font-medium">Nginx-Konfiguration (ohne dhparam):</p>
           <div className="relative">
-            <CopyButton text={NGINX_SSL_CUSTOM.replace('\n    ssl_dhparam         /etc/ssl/room-booking/dhparam.pem;', '')} />
-            <pre className="bg-gray-900 text-gray-100 rounded-lg px-4 py-3 text-xs overflow-x-auto pr-12">{NGINX_SSL_CUSTOM.replace('\n    ssl_dhparam         /etc/ssl/room-booking/dhparam.pem;', '')}</pre>
+            <CopyButton text={NGINX_SSL_CUSTOM.replace('\n    ssl_dhparam         /etc/ssl/placard/dhparam.pem;', '')} />
+            <pre className="bg-gray-900 text-gray-100 rounded-lg px-4 py-3 text-xs overflow-x-auto pr-12">{NGINX_SSL_CUSTOM.replace('\n    ssl_dhparam         /etc/ssl/placard/dhparam.pem;', '')}</pre>
           </div>
         </div>
       )}

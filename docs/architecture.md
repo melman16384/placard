@@ -12,7 +12,7 @@
                           ▼
 ┌──────────────────────────────────────────────────────────────┐
 │  Middleware — Next.js 16 (App Router)                        │
-│  /opt/room-booking  │  Port 3002  │  PM2                     │
+│  /opt/placard  │  Port 3002  │  PM2                     │
 │                                                              │
 │  ┌──────────────┐  ┌──────────────┐  ┌───────────────────┐  │
 │  │  Admin-Panel │  │  Display-API │  │  Webhook-Empfang  │  │

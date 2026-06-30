@@ -1,6 +1,6 @@
 # Deployment auf Ubuntu Server
 
-Diese Anleitung beschreibt die vollständige Ersteinrichtung des Raumbuchungssystems auf einem frischen Ubuntu 22.04 / 24.04 LTS Server — von der Paketverwaltung bis zum laufenden Produktionsbetrieb.
+Diese Anleitung beschreibt die vollständige Ersteinrichtung des Placards auf einem frischen Ubuntu 22.04 / 24.04 LTS Server — von der Paketverwaltung bis zum laufenden Produktionsbetrieb.
 
 ---
 
@@ -131,11 +131,11 @@ sudo npm install -g pm2
 ### Option A: Via Git (empfohlen)
 
 ```bash
-sudo mkdir -p /opt/room-booking
-sudo chown $USER:$USER /opt/room-booking
+sudo mkdir -p /opt/placard
+sudo chown $USER:$USER /opt/placard
 
-git clone https://github.com/DEIN_USERNAME/room-booking.git /opt/room-booking
-cd /opt/room-booking
+git clone https://github.com/DEIN_USERNAME/placard.git /opt/placard
+cd /opt/placard
 ```
 
 ### Option B: Dateien hochladen (rsync)
@@ -144,13 +144,13 @@ Von der lokalen Entwicklungsmaschine:
 
 ```bash
 rsync -avz --exclude node_modules --exclude .next --exclude .env.local \
-  ./  user@SERVER_IP:/opt/room-booking/
+  ./  user@SERVER_IP:/opt/placard/
 ```
 
 ### Abhängigkeiten installieren
 
 ```bash
-cd /opt/room-booking
+cd /opt/placard
 npm install
 ```
 
@@ -158,10 +158,10 @@ npm install
 
 ## 7. Umgebungsvariablen konfigurieren
 
-Datei `/opt/room-booking/.env.local` erstellen:
+Datei `/opt/placard/.env.local` erstellen:
 
 ```bash
-nano /opt/room-booking/.env.local
+nano /opt/placard/.env.local
 ```
 
 Inhalt (alle Platzhalter ersetzen):
@@ -200,7 +200,7 @@ openssl rand -base64 32   # für CRON_SECRET
 Dateiberechtigungen einschränken:
 
 ```bash
-chmod 600 /opt/room-booking/.env.local
+chmod 600 /opt/placard/.env.local
 ```
 
 ---
@@ -209,7 +209,7 @@ chmod 600 /opt/room-booking/.env.local
 
 1. **Azure Portal** öffnen → [portal.azure.com](https://portal.azure.com)
 2. **Microsoft Entra ID** → **App-Registrierungen** → **Neue Registrierung**
-3. Name: `Raumbuchungssystem`, Kontotyp: *Nur diese Organisation*
+3. Name: `Placard`, Kontotyp: *Nur diese Organisation*
 4. **API-Berechtigungen** → **Berechtigung hinzufügen** → **Microsoft Graph** → **Anwendungsberechtigungen:**
    - `Calendars.ReadWrite`
    - `Calendars.Read`
@@ -218,14 +218,14 @@ chmod 600 /opt/room-booking/.env.local
 6. **Zertifikate & Geheimnisse** → **Neuer geheimer Clientschlüssel** → Wert sofort kopieren
 7. **Übersicht:** Verzeichnis-ID (= `AZURE_TENANT_ID`) und Anwendungs-ID (= `AZURE_CLIENT_ID`) notieren
 
-Die kopierten Werte in `/opt/room-booking/.env.local` eintragen.
+Die kopierten Werte in `/opt/placard/.env.local` eintragen.
 
 ---
 
 ## 9. Datenbank initialisieren
 
 ```bash
-cd /opt/room-booking
+cd /opt/placard
 npx prisma migrate deploy
 ```
 
@@ -247,7 +247,7 @@ psql -U room_booking_user -d room_booking -c "\dt"
 ### Build
 
 ```bash
-cd /opt/room-booking
+cd /opt/placard
 npm run build
 ```
 
@@ -257,7 +257,7 @@ npm run build
 
 ```bash
 pm2 start ecosystem.config.js
-pm2 status   # sollte "room-booking" mit status "online" zeigen
+pm2 status   # sollte "placard" mit status "online" zeigen
 ```
 
 ### Autostart nach Reboot einrichten
@@ -272,7 +272,7 @@ pm2 startup
 ### Logs prüfen
 
 ```bash
-pm2 logs room-booking --lines 30
+pm2 logs placard --lines 30
 # Keine Fehler → Anwendung läuft korrekt
 ```
 
@@ -290,7 +290,7 @@ curl http://localhost:3002
 ### Konfigurationsdatei erstellen
 
 ```bash
-sudo nano /etc/nginx/sites-available/room-booking
+sudo nano /etc/nginx/sites-available/placard
 ```
 
 Inhalt (Domain anpassen):
@@ -348,7 +348,7 @@ server {
 ### Aktivieren & testen
 
 ```bash
-sudo ln -s /etc/nginx/sites-available/room-booking /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/placard /etc/nginx/sites-enabled/
 sudo nginx -t          # Konfiguration testen
 sudo systemctl reload nginx
 ```
@@ -378,22 +378,22 @@ systemctl status certbot.timer
 Wenn der Server hinter Cloudflare läuft (DNS-Proxy aktiviert):
 
 ```bash
-sudo mkdir -p /etc/ssl/room-booking
+sudo mkdir -p /etc/ssl/placard
 ```
 
 Im Cloudflare Dashboard: **SSL/TLS** → **Ursprungsserver** → **Zertifikat erstellen** → PEM-Dateien herunterladen und hochladen:
 
 ```bash
-sudo nano /etc/ssl/room-booking/cert.pem   # Zertifikat einfügen
-sudo nano /etc/ssl/room-booking/key.pem    # Privaten Schlüssel einfügen
-sudo chmod 600 /etc/ssl/room-booking/key.pem
+sudo nano /etc/ssl/placard/cert.pem   # Zertifikat einfügen
+sudo nano /etc/ssl/placard/key.pem    # Privaten Schlüssel einfügen
+sudo chmod 600 /etc/ssl/placard/key.pem
 ```
 
 In der Nginx-Konfiguration die `ssl_certificate`-Zeilen anpassen:
 
 ```nginx
-ssl_certificate     /etc/ssl/room-booking/cert.pem;
-ssl_certificate_key /etc/ssl/room-booking/key.pem;
+ssl_certificate     /etc/ssl/placard/cert.pem;
+ssl_certificate_key /etc/ssl/placard/key.pem;
 ```
 
 Cloudflare SSL-Modus auf **Full (strict)** setzen.
@@ -417,17 +417,17 @@ Typischerweise liefert die CA folgende Dateien:
 #### Zertifikat und Schlüssel kopieren
 
 ```bash
-sudo mkdir -p /etc/ssl/room-booking
-sudo chmod 700 /etc/ssl/room-booking
+sudo mkdir -p /etc/ssl/placard
+sudo chmod 700 /etc/ssl/placard
 
 # Zertifikat + CA-Kette zu einer Datei zusammenführen (fullchain)
 # Reihenfolge: erst dein Zertifikat, dann die Zwischenzertifikate
-sudo bash -c 'cat deine-domain.crt ca-bundle.crt > /etc/ssl/room-booking/fullchain.pem'
+sudo bash -c 'cat deine-domain.crt ca-bundle.crt > /etc/ssl/placard/fullchain.pem'
 
 # Privaten Schlüssel kopieren
-sudo cp deine-domain.key /etc/ssl/room-booking/privkey.pem
-sudo chmod 600 /etc/ssl/room-booking/privkey.pem
-sudo chown root:root /etc/ssl/room-booking/privkey.pem
+sudo cp deine-domain.key /etc/ssl/placard/privkey.pem
+sudo chmod 600 /etc/ssl/placard/privkey.pem
+sudo chown root:root /etc/ssl/placard/privkey.pem
 ```
 
 > Falls die CA nur ein einzelnes `.pem` ohne separate Kette liefert, prüfe ob mehrere `-----BEGIN CERTIFICATE-----` Blöcke enthalten sind. Wenn ja, ist die Kette bereits eingebettet und die Datei kann direkt als `fullchain.pem` verwendet werden.
@@ -435,13 +435,13 @@ sudo chown root:root /etc/ssl/room-booking/privkey.pem
 #### Diffie-Hellman-Parameter generieren (einmalig, empfohlen)
 
 ```bash
-sudo openssl dhparam -out /etc/ssl/room-booking/dhparam.pem 2048
+sudo openssl dhparam -out /etc/ssl/placard/dhparam.pem 2048
 # Dauert 1–2 Minuten
 ```
 
 #### Nginx-Konfiguration anpassen
 
-Den `server`-Block für Port 443 in `/etc/nginx/sites-available/room-booking` so ändern:
+Den `server`-Block für Port 443 in `/etc/nginx/sites-available/placard` so ändern:
 
 ```nginx
 server {
@@ -449,11 +449,11 @@ server {
     listen [::]:443 ssl;
     server_name DEINE_DOMAIN.de;
 
-    ssl_certificate     /etc/ssl/room-booking/fullchain.pem;
-    ssl_certificate_key /etc/ssl/room-booking/privkey.pem;
+    ssl_certificate     /etc/ssl/placard/fullchain.pem;
+    ssl_certificate_key /etc/ssl/placard/privkey.pem;
 
     # Starke SSL-Parameter
-    ssl_dhparam         /etc/ssl/room-booking/dhparam.pem;
+    ssl_dhparam         /etc/ssl/placard/dhparam.pem;
     ssl_protocols       TLSv1.2 TLSv1.3;
     ssl_ciphers         ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256;
     ssl_prefer_server_ciphers off;
@@ -510,13 +510,13 @@ crontab -e
 Zeile hinzufügen (prüft täglich, warnt 30 Tage vorher per E-Mail):
 
 ```cron
-0 8 * * * openssl x509 -enddate -noout -in /etc/ssl/room-booking/fullchain.pem | grep -v "notAfter=$(date -d '+30 days' '+%b')" || echo "SSL-Zertifikat läuft in weniger als 30 Tagen ab!" | mail -s "SSL-Warnung DEINE_DOMAIN.de" admin@DEINE_DOMAIN.de
+0 8 * * * openssl x509 -enddate -noout -in /etc/ssl/placard/fullchain.pem | grep -v "notAfter=$(date -d '+30 days' '+%b')" || echo "SSL-Zertifikat läuft in weniger als 30 Tagen ab!" | mail -s "SSL-Warnung DEINE_DOMAIN.de" admin@DEINE_DOMAIN.de
 ```
 
 Oder einfacher — Ablaufdatum einmalig anzeigen und im Kalender eintragen:
 
 ```bash
-openssl x509 -enddate -noout -in /etc/ssl/room-booking/fullchain.pem
+openssl x509 -enddate -noout -in /etc/ssl/placard/fullchain.pem
 # Ausgabe: notAfter=Jun 15 12:00:00 2027 GMT
 ```
 
@@ -530,8 +530,8 @@ head -2 deine-domain.key
 # → "Proc-Type: 4,ENCRYPTED" → verschlüsselt; andernfalls → kein Passwort
 
 # Passwort entfernen (Originalpasswort wird einmal abgefragt):
-sudo openssl rsa -in deine-domain.key -out /etc/ssl/room-booking/privkey.pem
-sudo chmod 600 /etc/ssl/room-booking/privkey.pem
+sudo openssl rsa -in deine-domain.key -out /etc/ssl/placard/privkey.pem
+sudo chmod 600 /etc/ssl/placard/privkey.pem
 ```
 
 ---
@@ -539,12 +539,12 @@ sudo chmod 600 /etc/ssl/room-booking/privkey.pem
 ### Option D: Selbstsigniertes Zertifikat (intern / Testumgebung)
 
 ```bash
-sudo mkdir -p /etc/ssl/room-booking
+sudo mkdir -p /etc/ssl/placard
 sudo openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
-  -keyout /etc/ssl/room-booking/privkey.pem \
-  -out    /etc/ssl/room-booking/fullchain.pem \
+  -keyout /etc/ssl/placard/privkey.pem \
+  -out    /etc/ssl/placard/fullchain.pem \
   -subj   "/CN=DEINE_DOMAIN.de"
-sudo chmod 600 /etc/ssl/room-booking/privkey.pem
+sudo chmod 600 /etc/ssl/placard/privkey.pem
 ```
 
 Nginx-Konfiguration wie in Option C verwenden (ohne `ssl_dhparam` falls nicht generiert).
@@ -584,7 +584,7 @@ Nginx Full                 ALLOW       Anywhere
 Da keine öffentliche Registrierungsseite existiert, wird der erste Admin über die Kommandozeile erstellt:
 
 ```bash
-cd /opt/room-booking
+cd /opt/placard
 node -e "
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
@@ -636,7 +636,7 @@ crontab -e
 Folgende Zeile hinzufügen:
 
 ```cron
-0 */6 * * * curl -s -H "x-cron-secret: CRON_SECRET_AUS_ENV" https://DEINE_DOMAIN.de/api/cron/renew-subscriptions >> /var/log/room-booking-cron.log 2>&1
+0 */6 * * * curl -s -H "x-cron-secret: CRON_SECRET_AUS_ENV" https://DEINE_DOMAIN.de/api/cron/renew-subscriptions >> /var/log/placard-cron.log 2>&1
 ```
 
 > `CRON_SECRET_AUS_ENV` durch den Wert aus `.env.local` ersetzen.
@@ -656,7 +656,7 @@ Admin-Panel → **Status** (`/status`):
 ```bash
 # 1. PM2-Status
 pm2 status
-# → room-booking: online, 2 Instanzen
+# → placard: online, 2 Instanzen
 
 # 2. App antwortet
 curl -I http://localhost:3002
@@ -675,7 +675,7 @@ sudo tail -20 /var/log/nginx/error.log
 # → keine Fehler
 
 # 6. App-Logs
-pm2 logs room-booking --lines 20 --nostream
+pm2 logs placard --lines 20 --nostream
 # → keine Fehler, "Ready in Xms" sichtbar
 ```
 
@@ -689,7 +689,7 @@ Abschließend im Browser öffnen:
 ## 17. Updates einspielen
 
 ```bash
-cd /opt/room-booking
+cd /opt/placard
 
 # 1. Neuen Code holen
 git pull
@@ -704,7 +704,7 @@ npx prisma migrate deploy
 npm run build
 
 # 5. PM2 neu starten (zero-downtime durch Cluster-Modus)
-pm2 reload room-booking
+pm2 reload placard
 ```
 
 > `pm2 reload` (nicht `restart`) nutzt den Cluster-Modus für Rolling Restarts ohne Downtime.
@@ -715,12 +715,12 @@ pm2 reload room-booking
 
 | Datei / Befehl | Beschreibung |
 |---|---|
-| `/opt/room-booking/.env.local` | Alle Secrets und Konfiguration |
-| `/opt/room-booking/ecosystem.config.js` | PM2-Konfiguration (Port, Cluster) |
-| `/etc/nginx/sites-available/room-booking` | Nginx vHost-Konfiguration |
+| `/opt/placard/.env.local` | Alle Secrets und Konfiguration |
+| `/opt/placard/ecosystem.config.js` | PM2-Konfiguration (Port, Cluster) |
+| `/etc/nginx/sites-available/placard` | Nginx vHost-Konfiguration |
 | `pm2 status` | Prozessstatus |
-| `pm2 logs room-booking` | Live-Logs |
-| `pm2 reload room-booking` | Neustart ohne Downtime |
+| `pm2 logs placard` | Live-Logs |
+| `pm2 reload placard` | Neustart ohne Downtime |
 | `sudo nginx -t` | Nginx-Konfiguration testen |
 | `sudo systemctl reload nginx` | Nginx neu laden |
 | `npx prisma migrate deploy` | Datenbankschema aktualisieren |
