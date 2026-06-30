@@ -11,8 +11,9 @@ Vollständige Dokumentation im [`docs/`](docs/README.md)-Verzeichnis:
 
 | Dokument | Beschreibung |
 |---|---|
+| [docs/deployment-ubuntu.md](docs/deployment-ubuntu.md) | **Vollständige Deployment-Anleitung für Ubuntu Server** |
 | [docs/architecture.md](docs/architecture.md) | Systemarchitektur, Datenfluss, Komponentenübersicht |
-| [docs/setup.md](docs/setup.md) | Ersteinrichtung: Azure, Datenbank, Server, Nginx, PM2 |
+| [docs/setup.md](docs/setup.md) | Kurzreferenz: Azure, Datenbank, Server, Nginx, PM2 |
 | [docs/api.md](docs/api.md) | Alle API-Endpunkte |
 | [docs/database.md](docs/database.md) | Datenbankschema, Prisma-Modelle, Migrationen |
 | [docs/graph.md](docs/graph.md) | Microsoft Graph API — Verbindung, Webhooks |

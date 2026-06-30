@@ -6,8 +6,9 @@ Joan-Tablet-Ersatz auf Basis von Raspberry Pi + eInk-Display, angebunden an Micr
 
 | Dokument | Beschreibung |
 |---|---|
+| [deployment-ubuntu.md](deployment-ubuntu.md) | **Vollständige Deployment-Anleitung für Ubuntu Server (von Null bis Produktion)** |
 | [architecture.md](architecture.md) | Systemarchitektur, Datenfluss, Komponentenübersicht |
-| [setup.md](setup.md) | Ersteinrichtung: Azure, Datenbank, Server, Nginx, PM2 |
+| [setup.md](setup.md) | Kurzreferenz: Azure, Datenbank, Server, Nginx, PM2 |
 | [api.md](api.md) | Alle API-Endpunkte mit Parametern und Rückgabewerten |
 | [database.md](database.md) | Datenbankschema, Prisma-Modelle, Migrationen |
 | [graph.md](graph.md) | Microsoft Graph API — Verbindung, Webhooks, Kalenderoperationen |
