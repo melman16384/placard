@@ -2,6 +2,7 @@
 
 Joan-Tablet-Ersatz auf Basis von Raspberry Pi + eInk-Display, angebunden an Microsoft Exchange Online über die Microsoft Graph API.
 
+- **Repository:** [github.com/melman16384/placard](https://github.com/melman16384/placard)
 - **Server:** Port 3002, via PM2, hinter Nginx (SSL)
 
 ## Dokumentation

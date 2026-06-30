@@ -143,25 +143,25 @@ p.user.create({
 })"`
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Top bar */}
-      <div className="no-print sticky top-0 z-20 bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-gray-700 font-semibold">
-          <Server className="w-5 h-5 text-blue-600" />
-          Placard — Server Deployment
+    <div className="bg-white">
+      {/* Page header */}
+      <div className="no-print max-w-6xl mx-auto px-6 pt-8 pb-0 flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight text-gray-900">Server Deployment</h2>
+          <p className="text-sm text-gray-400 mt-1">Ubuntu 22.04 / 24.04 LTS — von der Installation bis zum Produktionsbetrieb</p>
         </div>
         <div className="flex items-center gap-3">
-          <a href="/setup" className="text-sm text-blue-600 hover:underline">App-Einrichtung →</a>
+          <a href="/setup" className="text-sm text-blue-500 hover:text-blue-700 font-medium">App-Einrichtung →</a>
           <PrintButton />
         </div>
       </div>
 
       {/* Two-column layout: sticky TOC + content */}
-      <div className="max-w-6xl mx-auto px-6 py-10 flex gap-10">
+      <div className="max-w-6xl mx-auto px-6 py-8 flex gap-10">
 
         {/* Sticky TOC */}
         <nav className="no-print hidden lg:block w-56 flex-shrink-0">
-          <div className="sticky top-20">
+          <div className="sticky top-16">
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Schritte</p>
             <ol className="space-y-1">
               {STEPS.map((title, i) => (

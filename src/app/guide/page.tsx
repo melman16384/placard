@@ -1,22 +1,20 @@
 import { PrintButton } from './PrintButton'
 import { WiringDiagram } from './WiringDiagram'
-import { Building2 } from 'lucide-react'
 
 export default function GuidePage() {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://DEIN-SERVER'
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Print bar */}
-      <div className="no-print sticky top-0 z-10 bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-gray-700 font-semibold">
-          <Building2 className="w-5 h-5 text-blue-600" />
-          Placard — Display Bauanleitung
+    <div className="bg-white">
+      <div className="no-print max-w-3xl mx-auto px-8 pt-8 pb-0 flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight text-gray-900">Display Bauanleitung</h2>
+          <p className="text-sm text-gray-400 mt-1">Raspberry Pi Zero 2W + Waveshare 7,5″ eInk-Display</p>
         </div>
         <PrintButton />
       </div>
 
-      <div className="max-w-3xl mx-auto px-8 py-10 text-gray-900 guide-content">
+      <div className="max-w-3xl mx-auto px-8 py-8 text-gray-900 guide-content">
 
         <h1>Raum-Display Bauanleitung</h1>
         <p className="lead">
