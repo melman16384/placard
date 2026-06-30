@@ -49,7 +49,7 @@
 | Auth | NextAuth v5 (beta) | 5.x |
 | Graph-Client | @microsoft/microsoft-graph-client | latest |
 | Azure Auth | @azure/identity (ClientSecretCredential) | latest |
-| CSS | Tailwind CSS | 3 |
+| CSS | Tailwind CSS | 4 |
 | Icons | lucide-react | latest |
 | Prozess | PM2 | latest |
 | Reverse Proxy | Nginx | — |
@@ -103,3 +103,4 @@ Nutzer tippt auf Display (30/60/90 Min)
 - `/_next/*` (statische Assets)
 - `/display/*` (öffentlich für Pi-Displays)
 - `/guide` (öffentlich, Hardware-Anleitung)
+- `/deployment` (öffentlich, Server-Deployment-Anleitung)

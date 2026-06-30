@@ -75,7 +75,7 @@ Status-Seite → **„Webhooks erneuern"**
 ```bash
 # Alle 6 Stunden erneuern
 crontab -e
-0 */6 * * * curl -s https://DEINE_DOMAIN.de/api/cron/renew-subscriptions >> /var/log/placard-cron.log 2>&1
+0 */6 * * * curl -s -H "Authorization: Bearer CRON_SECRET_AUS_ENV" https://DEINE_DOMAIN.de/api/cron/renew-subscriptions >> /var/log/placard-cron.log 2>&1
 ```
 
 ### Status prüfen

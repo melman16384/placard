@@ -636,7 +636,7 @@ crontab -e
 Folgende Zeile hinzufügen:
 
 ```cron
-0 */6 * * * curl -s -H "x-cron-secret: CRON_SECRET_AUS_ENV" https://DEINE_DOMAIN.de/api/cron/renew-subscriptions >> /var/log/placard-cron.log 2>&1
+0 */6 * * * curl -s -H "Authorization: Bearer CRON_SECRET_AUS_ENV" https://DEINE_DOMAIN.de/api/cron/renew-subscriptions >> /var/log/placard-cron.log 2>&1
 ```
 
 > `CRON_SECRET_AUS_ENV` durch den Wert aus `.env.local` ersetzen.

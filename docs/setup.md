@@ -163,8 +163,8 @@ Danach weitere Admins über das Admin-Panel unter `/users`.
 # Einmalig Webhooks aktivieren (im Admin-Panel: Räume → Webhooks aktivieren)
 # oder per curl:
 curl -X POST https://DEINE_DOMAIN.de/api/graph/subscribe \
-  -H "Cookie: next-auth.session-token=..."
+  -H "Cookie: authjs.session-token=SESSION_TOKEN_AUS_DEM_BROWSER"
 
 # Cron für automatische Erneuerung (alle 6 Stunden)
-(crontab -l 2>/dev/null; echo "0 */6 * * * curl -s https://DEINE_DOMAIN.de/api/cron/renew-subscriptions") | crontab -
+(crontab -l 2>/dev/null; echo "0 */6 * * * curl -s -H 'Authorization: Bearer CRON_SECRET_AUS_ENV' https://DEINE_DOMAIN.de/api/cron/renew-subscriptions") | crontab -
 ```
