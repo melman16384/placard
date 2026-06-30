@@ -18,6 +18,7 @@ Vollständige Dokumentation im [`docs/`](docs/README.md)-Verzeichnis:
 | [docs/graph.md](docs/graph.md) | Microsoft Graph API — Verbindung, Webhooks |
 | [docs/display.md](docs/display.md) | Raspberry Pi / eInk-Display — Hardware, Software |
 | [docs/operations.md](docs/operations.md) | Betrieb, PM2, Nginx, Cron-Jobs, Fehlersuche |
+| [docs/brand.md](docs/brand.md) | Markenidentität — Logo, Farbpalette, Typografie |
 
 ## Schnellstart
 
