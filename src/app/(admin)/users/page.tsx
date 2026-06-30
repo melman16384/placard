@@ -15,9 +15,9 @@ export default async function UsersPage() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-xl font-bold text-gray-900">Benutzerverwaltung</h1>
-        <p className="text-sm text-gray-500 mt-1">Nur Admin-Konten — reguläre Benutzer werden nicht benötigt</p>
+      <div className="mb-7">
+        <h1 className="text-2xl font-bold tracking-tight text-gray-900">Benutzerverwaltung</h1>
+        <p className="text-sm text-gray-400 mt-1">Nur Admin-Konten — reguläre Benutzer werden nicht benötigt</p>
       </div>
       {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       <UserPanel users={users as any} currentUserId={session?.user?.id ?? ''} />

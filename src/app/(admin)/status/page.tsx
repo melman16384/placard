@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { graphClient } from '@/lib/graph'
-import { CheckCircle, XCircle, AlertCircle, TriangleAlert } from 'lucide-react'
+import { CheckCircle, XCircle, AlertCircle, TriangleAlert, Zap } from 'lucide-react'
 import { formatDatetime } from '@/lib/utils'
 import { SubscribeButton } from './SubscribeButton'
 
@@ -26,12 +26,23 @@ async function checkGraphApi(): Promise<{ ok: boolean; latencyMs: number; tenant
   }
 }
 
-function StatusBadge({ ok, label }: { ok: boolean; label: string }) {
+function StatusPill({ ok, label }: { ok: boolean; label: string }) {
   return (
-    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${ok ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
-      {ok ? <CheckCircle className="w-3.5 h-3.5" /> : <XCircle className="w-3.5 h-3.5" />}
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
+      ok ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'
+    }`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${ok ? 'bg-green-500' : 'bg-red-400'}`} />
       {label}
     </span>
+  )
+}
+
+function MetricRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between items-center py-2 border-b border-gray-50 last:border-0">
+      <span className="text-sm text-gray-400">{label}</span>
+      <span className="text-sm font-mono text-gray-700">{value}</span>
+    </div>
   )
 }
 
@@ -58,184 +69,178 @@ export default async function StatusPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-gray-900">Systemstatus</h1>
-        <p className="text-sm text-gray-500 mt-1">Letzte Prüfung: {formatDatetime(now)}</p>
+      <div className="mb-7">
+        <h1 className="text-2xl font-bold tracking-tight text-gray-900">Systemstatus</h1>
+        <p className="text-sm text-gray-400 mt-1">Letzte Prüfung: {formatDatetime(now)}</p>
       </div>
 
-      {/* Alert banners */}
+      {/* Alerts */}
       {expiredRooms.length > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-xl px-5 py-4 flex items-start gap-3">
-          <XCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+        <div className="bg-red-50 border border-red-100 rounded-2xl px-5 py-4 flex items-start gap-3">
+          <XCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
           <div>
-            <p className="font-semibold text-red-800 text-sm">Webhook abgelaufen</p>
-            <p className="text-sm text-red-700 mt-0.5">
-              {expiredRooms.map((r) => r.name).join(', ')} — keine Echtzeit-Updates mehr. Bitte &quot;Webhooks erneuern&quot; klicken.
+            <p className="font-semibold text-red-700 text-sm">Webhook abgelaufen</p>
+            <p className="text-sm text-red-500 mt-0.5">
+              {expiredRooms.map((r) => r.name).join(', ')} — keine Echtzeit-Updates. Bitte Webhooks erneuern.
             </p>
           </div>
         </div>
       )}
       {expiringSoonRooms.length > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl px-5 py-4 flex items-start gap-3">
-          <TriangleAlert className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+        <div className="bg-amber-50 border border-amber-100 rounded-2xl px-5 py-4 flex items-start gap-3">
+          <TriangleAlert className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
           <div>
-            <p className="font-semibold text-amber-800 text-sm">Webhook läuft bald ab</p>
-            <p className="text-sm text-amber-700 mt-0.5">
+            <p className="font-semibold text-amber-700 text-sm">Webhook läuft bald ab</p>
+            <p className="text-sm text-amber-500 mt-0.5">
               {expiringSoonRooms.map((r) => r.name).join(', ')} — Ablauf innerhalb von 24 Stunden.
             </p>
           </div>
         </div>
       )}
       {noSubRooms.length > 0 && (
-        <div className="bg-gray-50 border border-gray-200 rounded-xl px-5 py-4 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
+        <div className="bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-gray-300 shrink-0 mt-0.5" />
           <div>
-            <p className="font-semibold text-gray-700 text-sm">Webhooks nicht eingerichtet</p>
-            <p className="text-sm text-gray-600 mt-0.5">
-              {noSubRooms.map((r) => r.name).join(', ')} — Exchange verknüpft, aber kein aktiver Webhook.
+            <p className="font-semibold text-gray-600 text-sm">Webhooks nicht eingerichtet</p>
+            <p className="text-sm text-gray-400 mt-0.5">
+              {noSubRooms.map((r) => r.name).join(', ')} — Exchange verknüpft, aber kein Webhook.
             </p>
           </div>
         </div>
       )}
 
-      {/* System connections */}
+      {/* Connections */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Database */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-semibold text-gray-900 text-sm">PostgreSQL Datenbank</h2>
-            <StatusBadge ok={db.ok} label={db.ok ? 'Verbunden' : 'Fehler'} />
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 ring-1 ring-black/[0.03]">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Datenbank</p>
+              <h2 className="font-semibold text-gray-900 text-sm">PostgreSQL</h2>
+            </div>
+            <StatusPill ok={db.ok} label={db.ok ? 'Verbunden' : 'Fehler'} />
           </div>
-          <div className="space-y-1 text-sm text-gray-500">
-            <div className="flex justify-between">
-              <span>Latenz</span>
-              <span className="font-mono text-gray-700">{db.latencyMs} ms</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Host</span>
-              <span className="font-mono text-gray-700">localhost:5432</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Datenbank</span>
-              <span className="font-mono text-gray-700">room_booking</span>
-            </div>
-            {db.error && <p className="text-xs text-red-600 mt-2 font-mono break-all">{db.error}</p>}
+          <div>
+            <MetricRow label="Latenz" value={`${db.latencyMs} ms`} />
+            <MetricRow label="Host" value="localhost:5432" />
+            {db.error && <p className="text-xs text-red-500 mt-3 font-mono break-all bg-red-50 rounded-lg p-2">{db.error}</p>}
           </div>
         </div>
 
-        {/* Microsoft Graph */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-semibold text-gray-900 text-sm">Microsoft Graph API</h2>
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 ring-1 ring-black/[0.03]">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Microsoft</p>
+              <h2 className="font-semibold text-gray-900 text-sm">Graph API</h2>
+            </div>
             {!graphConfigured
-              ? <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500"><AlertCircle className="w-3.5 h-3.5" />Nicht konfiguriert</span>
-              : <StatusBadge ok={graph.ok} label={graph.ok ? 'Verbunden' : 'Fehler'} />}
+              ? <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-400">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gray-300" />Nicht konfiguriert
+                </span>
+              : <StatusPill ok={graph.ok} label={graph.ok ? 'Verbunden' : 'Fehler'} />}
           </div>
-          <div className="space-y-1 text-sm text-gray-500">
+          <div>
             {graphConfigured ? (
               <>
-                <div className="flex justify-between">
-                  <span>Latenz</span>
-                  <span className="font-mono text-gray-700">{graph.latencyMs} ms</span>
-                </div>
-                {graph.tenantId && (
-                  <div className="flex justify-between">
-                    <span>Tenant</span>
-                    <span className="font-mono text-gray-700 truncate max-w-[180px]">{graph.tenantId}</span>
-                  </div>
-                )}
-                <div className="flex justify-between">
-                  <span>Client ID</span>
-                  <span className="font-mono text-gray-700">{process.env.AZURE_CLIENT_ID?.slice(0, 8)}…</span>
-                </div>
-                {graph.error && <p className="text-xs text-red-600 mt-2 font-mono break-all">{graph.error}</p>}
+                <MetricRow label="Latenz" value={`${graph.latencyMs} ms`} />
+                {graph.tenantId && <MetricRow label="Tenant" value={graph.tenantId} />}
+                <MetricRow label="Client ID" value={`${process.env.AZURE_CLIENT_ID?.slice(0, 8)}…`} />
+                {graph.error && <p className="text-xs text-red-500 mt-3 font-mono break-all bg-red-50 rounded-lg p-2">{graph.error}</p>}
               </>
             ) : (
-              <p className="text-xs text-amber-600">
-                Azure-Credentials fehlen in <code className="bg-gray-100 px-1 rounded">.env.local</code>
+              <p className="text-xs text-amber-500 bg-amber-50 rounded-lg p-3">
+                Azure-Credentials fehlen in <code className="font-mono">.env.local</code>
               </p>
             )}
           </div>
         </div>
       </div>
 
-      {/* Webhook Subscriptions */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+      {/* Webhooks table */}
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden ring-1 ring-black/[0.03]">
+        <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
           <div>
-            <h2 className="font-semibold text-gray-900 text-sm">Graph Webhook Subscriptions</h2>
-            <p className="text-xs text-gray-500 mt-0.5">Echtzeit-Benachrichtigungen bei Kalenderänderungen</p>
+            <div className="flex items-center gap-2 mb-0.5">
+              <Zap className="w-4 h-4 text-blue-500" />
+              <h2 className="font-semibold text-gray-900 text-sm tracking-tight">Webhook Subscriptions</h2>
+            </div>
+            <p className="text-xs text-gray-400">Echtzeit-Benachrichtigungen bei Kalenderänderungen</p>
           </div>
           <SubscribeButton />
         </div>
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-gray-50 border-b border-gray-100">
-              <th className="text-left px-5 py-2.5 font-medium text-gray-500 text-xs uppercase tracking-wide">Raum</th>
-              <th className="text-left px-5 py-2.5 font-medium text-gray-500 text-xs uppercase tracking-wide">Exchange Konto</th>
-              <th className="text-left px-5 py-2.5 font-medium text-gray-500 text-xs uppercase tracking-wide">Status</th>
-              <th className="text-left px-5 py-2.5 font-medium text-gray-500 text-xs uppercase tracking-wide">Läuft ab</th>
+            <tr className="border-b border-gray-50">
+              <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-50/60">Raum</th>
+              <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-50/60">Exchange Konto</th>
+              <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-50/60">Status</th>
+              <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-50/60">Läuft ab</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-gray-50">
             {rooms.map((room) => {
               const expiry = room.subscriptionExpiry ? new Date(room.subscriptionExpiry) : null
               const isActive = expiry && expiry > now
               const expiresSoon = expiry && expiry > now && expiry < twoHours
 
               return (
-                <tr key={room.id} className="border-b border-gray-50">
-                  <td className="px-5 py-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: room.color }} />
+                <tr key={room.id} className="hover:bg-blue-50/20 transition-colors">
+                  <td className="px-5 py-3.5">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: room.color }} />
                       <span className="font-medium text-gray-800">{room.name}</span>
                     </div>
                   </td>
-                  <td className="px-5 py-3">
+                  <td className="px-5 py-3.5">
                     {room.msEmail
-                      ? <span className="font-mono text-xs text-gray-600">{room.msEmail}</span>
-                      : <span className="text-xs text-gray-400">— nicht verknüpft</span>}
+                      ? <span className="font-mono text-xs text-gray-500">{room.msEmail}</span>
+                      : <span className="text-xs text-gray-300">nicht verknüpft</span>}
                   </td>
-                  <td className="px-5 py-3">
+                  <td className="px-5 py-3.5">
                     {!room.msEmail ? (
-                      <span className="text-xs text-gray-400">—</span>
+                      <span className="text-xs text-gray-300">—</span>
                     ) : !room.graphSubscriptionId ? (
-                      <span className="inline-flex items-center gap-1 text-xs text-gray-500"><AlertCircle className="w-3.5 h-3.5" />Kein Abo</span>
+                      <span className="inline-flex items-center gap-1.5 text-xs text-gray-400">
+                        <AlertCircle className="w-3.5 h-3.5" />Kein Abo
+                      </span>
                     ) : isActive ? (
-                      <span className={`inline-flex items-center gap-1 text-xs font-medium ${expiresSoon ? 'text-amber-600' : 'text-green-600'}`}>
-                        <CheckCircle className="w-3.5 h-3.5" />
+                      <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${
+                        expiresSoon ? 'bg-amber-50 text-amber-600' : 'bg-green-50 text-green-600'
+                      }`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${expiresSoon ? 'bg-amber-400' : 'bg-green-500'}`} />
                         {expiresSoon ? 'Läuft bald ab' : 'Aktiv'}
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 text-xs text-red-600"><XCircle className="w-3.5 h-3.5" />Abgelaufen</span>
+                      <span className="inline-flex items-center gap-1.5 text-xs font-medium bg-red-50 text-red-500 px-2.5 py-1 rounded-full">
+                        <span className="w-1.5 h-1.5 rounded-full bg-red-400" />Abgelaufen
+                      </span>
                     )}
                   </td>
-                  <td className="px-5 py-3 text-xs text-gray-500 font-mono">
+                  <td className="px-5 py-3.5 text-xs text-gray-400 font-mono">
                     {expiry ? formatDatetime(expiry) : '—'}
                   </td>
                 </tr>
               )
             })}
             {rooms.length === 0 && (
-              <tr><td colSpan={4} className="px-5 py-8 text-center text-gray-400 text-sm">Noch keine Räume angelegt</td></tr>
+              <tr><td colSpan={4} className="px-5 py-10 text-center text-gray-300 text-sm">Noch keine Räume angelegt</td></tr>
             )}
           </tbody>
         </table>
       </div>
 
-      {/* Environment info */}
-      <div className="bg-white rounded-xl border border-gray-200 p-5">
-        <h2 className="font-semibold text-gray-900 text-sm mb-3">Umgebung</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+      {/* Env */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-5 ring-1 ring-black/[0.03]">
+        <h2 className="font-semibold text-gray-900 text-sm mb-4 tracking-tight">Umgebung</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
             { label: 'App URL', value: process.env.NEXT_PUBLIC_APP_URL || '—' },
             { label: 'Node ENV', value: process.env.NODE_ENV || '—' },
             { label: 'Räume gesamt', value: String(rooms.length) },
             { label: 'Exchange verknüpft', value: String(rooms.filter((r) => r.msEmail).length) },
           ].map(({ label, value }) => (
-            <div key={label}>
-              <p className="text-xs text-gray-400 mb-0.5">{label}</p>
-              <p className="font-mono text-xs text-gray-700 truncate">{value}</p>
+            <div key={label} className="bg-gray-50/60 rounded-xl px-4 py-3">
+              <p className="text-xs text-gray-400 mb-1">{label}</p>
+              <p className="font-mono text-xs text-gray-700 truncate font-medium">{value}</p>
             </div>
           ))}
         </div>

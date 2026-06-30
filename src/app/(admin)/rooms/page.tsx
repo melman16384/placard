@@ -11,9 +11,9 @@ export default async function RoomsPage() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-xl font-bold text-gray-900">Raumverwaltung</h1>
-        <p className="text-sm text-gray-500 mt-1">Räume anlegen, Exchange-Konten verknüpfen und Displays verwalten</p>
+      <div className="mb-7">
+        <h1 className="text-2xl font-bold tracking-tight text-gray-900">Raumverwaltung</h1>
+        <p className="text-sm text-gray-400 mt-1">Räume anlegen, Exchange-Konten verknüpfen und Displays verwalten</p>
       </div>
       {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       <RoomAdminPanel rooms={rooms as any} />
