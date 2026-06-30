@@ -4,7 +4,8 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut, useSession } from 'next-auth/react'
 import { cn } from '@/lib/utils'
-import { Building2, LogOut, Settings, Activity, BookOpen, Users, Wrench, Server } from 'lucide-react'
+import { LogOut, Settings, Activity, BookOpen, Users, Wrench, Server } from 'lucide-react'
+import { PlacardLogo } from '@/components/PlacardLogo'
 
 export function Navbar() {
   const pathname = usePathname()
@@ -23,10 +24,10 @@ export function Navbar() {
     <nav className="bg-white border-b border-gray-200 px-4 py-3">
       <div className="max-w-5xl mx-auto flex items-center justify-between">
         <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2 font-semibold text-gray-900">
-            <Building2 className="w-5 h-5 text-blue-600" />
-            <span>Placard</span>
-            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium ml-1">Admin</span>
+          <div className="flex items-center gap-2.5">
+            <PlacardLogo size={28} />
+            <span className="font-semibold tracking-tight text-gray-900">Placard</span>
+            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">Admin</span>
           </div>
           <div className="flex gap-1">
             {links.map(({ href, label, icon: Icon }) => (

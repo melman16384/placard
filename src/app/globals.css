@@ -2,7 +2,7 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0f172a;
 }
 
 @theme inline {
@@ -10,10 +10,23 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Placard brand — indigo-violet replaces generic blue */
+  --color-blue-50:  #F2F3FF;
+  --color-blue-100: #E5E7FF;
+  --color-blue-200: #CACFFF;
+  --color-blue-300: #A8AEFF;
+  --color-blue-400: #8088FF;
+  --color-blue-500: #5B65F5;
+  --color-blue-600: #4A55E8;
+  --color-blue-700: #3A44D4;
+  --color-blue-800: #2B34B0;
+  --color-blue-900: #1D2480;
+  --color-blue-950: #11166B;
 }
 
 body {
-  background: #f9fafb;
-  color: #111827;
+  background: #F8F9FF;
+  color: #0f172a;
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }

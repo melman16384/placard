@@ -3,9 +3,9 @@
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { Building2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { PlacardLogo } from '@/components/PlacardLogo'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -36,17 +36,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'linear-gradient(135deg, #F2F3FF 0%, #F8F9FF 50%, #F0F4FF 100%)' }}>
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-8">
-          <div className="bg-blue-600 text-white p-3 rounded-xl mb-4">
-            <Building2 className="w-8 h-8" />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">Placard</h1>
-          <p className="text-gray-500 text-sm mt-1">Melde dich an</p>
+          <PlacardLogo size={56} className="mb-4 drop-shadow-md" />
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Placard</h1>
+          <p className="text-gray-500 text-sm mt-1">Admin-Bereich</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-blue-100 p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
               id="email"

@@ -11,6 +11,7 @@ const geist = Geist({
 export const metadata: Metadata = {
   title: 'Placard',
   description: 'Raumverwaltung und Buchungssystem',
+  icons: { icon: '/favicon.svg' },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
