@@ -1,6 +1,6 @@
 # eInk-Display / Raspberry Pi
 
-Vollständige Hardware-Bauanleitung mit interaktivem Schaltplan: **https://room-booking.luwilab.work/guide**
+Vollständige Hardware-Bauanleitung mit interaktivem Schaltplan: **https://DEINE_DOMAIN.de/guide**
 
 Diese Seite fasst die technischen Details für Entwickler zusammen.
 
@@ -114,7 +114,7 @@ Restart=always
 RestartSec=30
 User=pi
 Environment=ROOM_ID=clxxxxxxxxxx
-Environment=SERVER_URL=https://room-booking.luwilab.work
+Environment=SERVER_URL=https://DEINE_DOMAIN.de
 Environment=INTERVAL=300
 Environment=TZ=Europe/Berlin
 
@@ -137,6 +137,6 @@ journalctl -u room-display -f   # Logs beobachten
 |---|---|---|
 | Display bleibt weiß | SPI nicht aktiviert | `raspi-config` → Interface Options → SPI |
 | `ModuleNotFoundError: waveshare_epd` | Treiber fehlt | `pip3 install . --break-system-packages` in e-Paper/RaspberryPi_JetsonNano/python |
-| „Verbindungsfehler" auf Display | WLAN/Server nicht erreichbar | `ping room-booking.luwilab.work` |
+| „Verbindungsfehler" auf Display | WLAN/Server nicht erreichbar | `ping DEINE_DOMAIN.de` |
 | Geisterbilder (alte Pixel) | Kein Full-Refresh | `epd.Clear()` vor erstem Display-Aufruf |
 | ZIF-Kabel-Problem | Klemme nicht geschlossen | Klemme öffnen, Kabel neu einführen (goldene Kontakte von Riegel weg) |

@@ -95,7 +95,7 @@ Exchange-Termin ändert sich
 POST /subscriptions
 {
   "changeType": "created,updated,deleted",
-  "notificationUrl": "https://room-booking.luwilab.work/api/graph/webhook",
+  "notificationUrl": "https://DEINE_DOMAIN.de/api/graph/webhook",
   "resource": "/users/{raumEmail}/events",
   "expirationDateTime": "...",      // max. ~3 Tage für Kalender
   "clientState": "GRAPH_WEBHOOK_SECRET"

@@ -45,7 +45,7 @@ tail -f /var/log/nginx/error.log
 tail -f /var/log/nginx/access.log
 ```
 
-Konfigurationsdatei: `/etc/nginx/sites-available/room-booking.luwilab.work`
+Konfigurationsdatei: `/etc/nginx/sites-available/DEINE_DOMAIN.de`
 
 ---
 
@@ -75,7 +75,7 @@ Status-Seite → **„Webhooks erneuern"**
 ```bash
 # Alle 6 Stunden erneuern
 crontab -e
-0 */6 * * * curl -s https://room-booking.luwilab.work/api/cron/renew-subscriptions >> /var/log/room-booking-cron.log 2>&1
+0 */6 * * * curl -s https://DEINE_DOMAIN.de/api/cron/renew-subscriptions >> /var/log/room-booking-cron.log 2>&1
 ```
 
 ### Status prüfen
@@ -116,7 +116,7 @@ pm2 restart room-booking
 | `/opt/room-booking/prisma/schema.prisma` | Datenbankschema |
 | `/opt/room-booking/prisma/migrations/` | Migrationshistorie |
 | `/opt/room-booking/ecosystem.config.js` | PM2-Konfiguration |
-| `/etc/nginx/sites-available/room-booking.luwilab.work` | Nginx vHost |
+| `/etc/nginx/sites-available/DEINE_DOMAIN.de` | Nginx vHost |
 | `/etc/ssl/room-booking/` | SSL-Zertifikat (selbstsigniert für Origin) |
 
 ---

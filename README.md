@@ -2,7 +2,6 @@
 
 Joan-Tablet-Ersatz auf Basis von Raspberry Pi + eInk-Display, angebunden an Microsoft Exchange Online über die Microsoft Graph API.
 
-- **URL:** https://room-booking.luwilab.work
 - **Server:** Port 3002, via PM2, hinter Nginx (SSL)
 
 ## Dokumentation

@@ -3,6 +3,8 @@ import { WiringDiagram } from './WiringDiagram'
 import { Building2 } from 'lucide-react'
 
 export default function GuidePage() {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://DEIN-SERVER'
+
   return (
     <div className="min-h-screen bg-white">
       {/* Print bar */}
@@ -274,7 +276,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(mess
 log = logging.getLogger("room-display")
 
 ROOM_ID    = os.environ.get("ROOM_ID", "")
-SERVER_URL = os.environ.get("SERVER_URL", "https://room-booking.luwilab.work")
+SERVER_URL = os.environ.get("SERVER_URL", "`}{appUrl}{`")
 INTERVAL   = int(os.environ.get("INTERVAL", "300"))   # Sekunden
 TIMEZONE   = os.environ.get("TZ", "Europe/Berlin")
 
@@ -432,7 +434,7 @@ Restart=always
 RestartSec=30
 User=pi
 Environment=ROOM_ID=DEINE_RAUM_ID_HIER
-Environment=SERVER_URL=https://room-booking.luwilab.work
+Environment=SERVER_URL=`}{appUrl}{`
 Environment=INTERVAL=300
 Environment=TZ=Europe/Berlin
 
@@ -523,7 +525,7 @@ journalctl -u room-display -f`}</pre>
             <tr>
               <td>„Verbindungsfehler" auf Display</td>
               <td>WLAN oder Server nicht erreichbar</td>
-              <td><code>ping room-booking.luwilab.work</code>; WLAN-Credentials prüfen</td>
+              <td><code>ping {new URL(appUrl).hostname}</code>; WLAN-Credentials prüfen</td>
             </tr>
             <tr>
               <td>Kein systemd-Start</td>

@@ -139,5 +139,5 @@ Eingehende Change Notifications von Microsoft Graph empfangen.
 Subscriptions automatisch erneuern (für externen Cron-Job).
 - **Auth:** Bearer-Token (`Authorization: Bearer CRON_SECRET`)
 - **Logik:** Erneuert Subscriptions die in < 2h ablaufen; resubscribet abgelaufene Subscriptions
-- **Aufruf:** `curl -H "Authorization: Bearer $CRON_SECRET" https://room-booking.luwilab.work/api/cron/renew-subscriptions`
+- **Aufruf:** `curl -H "Authorization: Bearer $CRON_SECRET" https://DEINE_DOMAIN.de/api/cron/renew-subscriptions`
 - **Empfehlung:** Alle 6 Stunden via systemd-Timer oder crontab

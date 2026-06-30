@@ -40,8 +40,8 @@ DATABASE_URL="postgresql://room_booking_user:PASSWORT@localhost:5432/room_bookin
 
 # NextAuth
 NEXTAUTH_SECRET="zufälliger-base64-string"        # openssl rand -base64 32
-NEXTAUTH_URL="https://room-booking.luwilab.work"
-NEXT_PUBLIC_APP_URL="https://room-booking.luwilab.work"
+NEXTAUTH_URL="https://DEINE_DOMAIN.de"
+NEXT_PUBLIC_APP_URL="https://DEINE_DOMAIN.de"
 
 # Port
 PORT=3002
@@ -97,12 +97,12 @@ pm2 startup   # Autostart nach Reboot einrichten (Befehl ausführen der ausgegeb
 
 ## 8. Nginx konfigurieren
 
-Datei: `/etc/nginx/sites-available/room-booking.luwilab.work`
+Datei: `/etc/nginx/sites-available/DEINE_DOMAIN.de`
 
 ```nginx
 server {
     listen 443 ssl;
-    server_name room-booking.luwilab.work;
+    server_name DEINE_DOMAIN.de;
 
     ssl_certificate     /etc/ssl/room-booking/cert.pem;
     ssl_certificate_key /etc/ssl/room-booking/key.pem;
@@ -120,7 +120,7 @@ server {
 ```
 
 ```bash
-ln -s /etc/nginx/sites-available/room-booking.luwilab.work /etc/nginx/sites-enabled/
+ln -s /etc/nginx/sites-available/DEINE_DOMAIN.de /etc/nginx/sites-enabled/
 nginx -t && systemctl reload nginx
 ```
 
@@ -131,7 +131,7 @@ mkdir -p /etc/ssl/room-booking
 openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
   -keyout /etc/ssl/room-booking/key.pem \
   -out    /etc/ssl/room-booking/cert.pem \
-  -subj   "/CN=room-booking.luwilab.work"
+  -subj   "/CN=DEINE_DOMAIN.de"
 ```
 
 ## 9. Ersten Admin anlegen
@@ -162,9 +162,9 @@ Danach weitere Admins über das Admin-Panel unter `/users`.
 ```bash
 # Einmalig Webhooks aktivieren (im Admin-Panel: Räume → Webhooks aktivieren)
 # oder per curl:
-curl -X POST https://room-booking.luwilab.work/api/graph/subscribe \
+curl -X POST https://DEINE_DOMAIN.de/api/graph/subscribe \
   -H "Cookie: next-auth.session-token=..."
 
 # Cron für automatische Erneuerung (alle 6 Stunden)
-(crontab -l 2>/dev/null; echo "0 */6 * * * curl -s https://room-booking.luwilab.work/api/cron/renew-subscriptions") | crontab -
+(crontab -l 2>/dev/null; echo "0 */6 * * * curl -s https://DEINE_DOMAIN.de/api/cron/renew-subscriptions") | crontab -
 ```

@@ -50,7 +50,7 @@ from PIL import Image, ImageDraw, ImageFont
 import subprocess
 
 ROOM_ID = "DEINE_RAUM_ID_HIER"
-SERVER_URL = "https://room-booking.luwilab.work"
+SERVER_URL = "https://DEINE_DOMAIN.de"
 UPDATE_INTERVAL = 300  # 5 Minuten
 
 def fetch_room_data():
@@ -230,7 +230,7 @@ Für noch längere Laufzeit:
 
 Nach dem Anlegen eines Raums im Admin-Panel:
 ```
-https://room-booking.luwilab.work/display/[RAUM-ID]
+https://DEINE_DOMAIN.de/display/[RAUM-ID]
 ```
 
 Diese URL auf dem Raspberry Pi als `ROOM_ID` eintragen.

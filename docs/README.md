@@ -29,7 +29,6 @@ Exchange Online ──► Microsoft Graph API ──► Middleware (Next.js)
                                                 (eInk HAT)
 ```
 
-- **URL:** https://room-booking.luwilab.work
 - **Server:** Port 3002, via PM2, hinter Nginx (SSL)
 - **Datenbank:** PostgreSQL 16, lokal, Benutzer `room_booking_user`
 - **Prozess:** `pm2 status room-booking`
