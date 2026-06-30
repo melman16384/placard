@@ -4,18 +4,19 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut, useSession } from 'next-auth/react'
 import { cn } from '@/lib/utils'
-import { Building2, LogOut, Settings, Activity, BookOpen, Users, Wrench } from 'lucide-react'
+import { Building2, LogOut, Settings, Activity, BookOpen, Users, Wrench, Server } from 'lucide-react'
 
 export function Navbar() {
   const pathname = usePathname()
   const { data: session } = useSession()
 
   const links = [
-    { href: '/rooms', label: 'Räume', icon: Settings },
-    { href: '/users', label: 'Benutzer', icon: Users },
-    { href: '/status', label: 'Status', icon: Activity },
-    { href: '/setup', label: 'Einrichtung', icon: Wrench },
-    { href: '/guide', label: 'Hardware', icon: BookOpen },
+    { href: '/rooms',      label: 'Räume',      icon: Settings },
+    { href: '/users',      label: 'Benutzer',   icon: Users    },
+    { href: '/status',     label: 'Status',     icon: Activity },
+    { href: '/setup',      label: 'Einrichtung',icon: Wrench   },
+    { href: '/deployment', label: 'Deployment', icon: Server   },
+    { href: '/guide',      label: 'Hardware',   icon: BookOpen },
   ]
 
   return (
