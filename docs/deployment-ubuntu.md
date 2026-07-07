@@ -18,7 +18,7 @@ Diese Anleitung beschreibt die vollständige Ersteinrichtung des Placards auf ei
 10. [Anwendung bauen & starten](#10-anwendung-bauen--starten)
 11. [Nginx konfigurieren](#11-nginx-konfigurieren)
 12. [SSL-Zertifikat einrichten](#12-ssl-zertifikat-einrichten)
-13. [Firewall konfigurieren](#13-firewall-konfigurieren)
+13. [Firewall und Systemhärtung](#13-firewall-und-systemhärtung)
 14. [Ersten Admin-Benutzer anlegen](#14-ersten-admin-benutzer-anlegen)
 15. [Webhooks & Cron aktivieren](#15-webhooks--cron-aktivieren)
 16. [Deployment verifizieren](#16-deployment-verifizieren)
@@ -172,8 +172,8 @@ DATABASE_URL="postgresql://room_booking_user:SICHERES_PASSWORT_HIER@localhost:54
 
 # ── NextAuth ───────────────────────────────────────────────────────────
 NEXTAUTH_SECRET="ZUFAELLIGER_BASE64_STRING"        # openssl rand -base64 32
-NEXTAUTH_URL="https://DEINE_DOMAIN.de"
-NEXT_PUBLIC_APP_URL="https://DEINE_DOMAIN.de"
+NEXTAUTH_URL="https://placard.luwilab.work"
+NEXT_PUBLIC_APP_URL="https://placard.luwilab.work"
 
 # ── Port ───────────────────────────────────────────────────────────────
 PORT=3002
@@ -201,7 +201,11 @@ Dateiberechtigungen einschränken:
 
 ```bash
 chmod 600 /opt/placard/.env.local
+# Falls zusätzlich eine separate .env-Datei existiert (z.B. für Prisma-CLI-Befehle):
+chmod 600 /opt/placard/.env
 ```
+
+> **Wichtig:** `.env` und `.env.local` enthalten Datenbank-Zugangsdaten, `NEXTAUTH_SECRET` sowie die Azure/Graph-Credentials und dürfen **niemals** world-readable (644) sein — nur der Besitzer sollte lesen dürfen (600). Der Besitzer wird in [Schritt 13](#13-firewall-und-systemhärtung) auf den dedizierten Systembenutzer `svc-placard` gesetzt, sobald dieser angelegt wurde.
 
 ---
 
@@ -260,6 +264,8 @@ pm2 start ecosystem.config.js
 pm2 status   # sollte "placard" mit status "online" zeigen
 ```
 
+> **Für den Produktionsbetrieb:** In [Schritt 13](#13-firewall-und-systemhärtung) wird `ecosystem.config.js` so angepasst, dass PM2 den Prozess im **Fork-Modus mit einer Instanz** und als **nicht-root-Benutzer (`svc-placard`)** startet. Dieser Schritt kann direkt hier durchgeführt werden — die restlichen Deployment-Schritte (Nginx, SSL, Firewall) funktionieren unabhängig davon.
+
 ### Autostart nach Reboot einrichten
 
 ```bash
@@ -299,7 +305,7 @@ Inhalt (Domain anpassen):
 server {
     listen 80;
     listen [::]:80;
-    server_name DEINE_DOMAIN.de;
+    server_name placard.luwilab.work;
 
     # Certbot-Challenge (wird von certbot automatisch befüllt)
     location /.well-known/acme-challenge/ {
@@ -315,11 +321,11 @@ server {
 server {
     listen 443 ssl;
     listen [::]:443 ssl;
-    server_name DEINE_DOMAIN.de;
+    server_name placard.luwilab.work;
 
     # SSL-Zertifikate (werden von certbot eingetragen)
-    ssl_certificate     /etc/letsencrypt/live/DEINE_DOMAIN.de/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/DEINE_DOMAIN.de/privkey.pem;
+    ssl_certificate     /etc/letsencrypt/live/placard.luwilab.work/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/placard.luwilab.work/privkey.pem;
     include             /etc/letsencrypt/options-ssl-nginx.conf;
     ssl_dhparam         /etc/letsencrypt/ssl-dhparams.pem;
 
@@ -360,7 +366,7 @@ sudo systemctl reload nginx
 ### Option A: Let's Encrypt (öffentlicher Server mit echter Domain)
 
 ```bash
-sudo certbot --nginx -d DEINE_DOMAIN.de
+sudo certbot --nginx -d placard.luwilab.work
 # E-Mail eingeben, AGBs akzeptieren
 # Certbot ergänzt die SSL-Zeilen in der Nginx-Konfiguration automatisch
 ```
@@ -408,8 +414,8 @@ Typischerweise liefert die CA folgende Dateien:
 
 | Dateiname (variiert) | Inhalt |
 |---|---|
-| `deine-domain.crt` oder `cert.pem` | Dein Zertifikat |
-| `deine-domain.key` | Privater Schlüssel (nur du hast ihn) |
+| `placard.crt` oder `cert.pem` | Dein Zertifikat |
+| `placard.key` | Privater Schlüssel (nur du hast ihn) |
 | `ca-bundle.crt` oder `chain.pem` | Zwischenzertifikate der CA |
 
 > Falls der private Schlüssel passwortgeschützt ist, muss er für Nginx entschlüsselt werden — siehe [Passwortschutz entfernen](#passwortschutz-vom-privaten-schlüssel-entfernen).
@@ -422,10 +428,10 @@ sudo chmod 700 /etc/ssl/placard
 
 # Zertifikat + CA-Kette zu einer Datei zusammenführen (fullchain)
 # Reihenfolge: erst dein Zertifikat, dann die Zwischenzertifikate
-sudo bash -c 'cat deine-domain.crt ca-bundle.crt > /etc/ssl/placard/fullchain.pem'
+sudo bash -c 'cat placard.crt ca-bundle.crt > /etc/ssl/placard/fullchain.pem'
 
 # Privaten Schlüssel kopieren
-sudo cp deine-domain.key /etc/ssl/placard/privkey.pem
+sudo cp placard.key /etc/ssl/placard/privkey.pem
 sudo chmod 600 /etc/ssl/placard/privkey.pem
 sudo chown root:root /etc/ssl/placard/privkey.pem
 ```
@@ -447,7 +453,7 @@ Den `server`-Block für Port 443 in `/etc/nginx/sites-available/placard` so änd
 server {
     listen 443 ssl;
     listen [::]:443 ssl;
-    server_name DEINE_DOMAIN.de;
+    server_name placard.luwilab.work;
 
     ssl_certificate     /etc/ssl/placard/fullchain.pem;
     ssl_certificate_key /etc/ssl/placard/privkey.pem;
@@ -489,12 +495,12 @@ sudo nginx -t && sudo systemctl reload nginx
 
 ```bash
 # Läuft TLS korrekt?
-openssl s_client -connect DEINE_DOMAIN.de:443 -servername DEINE_DOMAIN.de < /dev/null 2>/dev/null \
+openssl s_client -connect placard.luwilab.work:443 -servername placard.luwilab.work < /dev/null 2>/dev/null \
   | openssl x509 -noout -subject -issuer -dates
 # Ausgabe zeigt: Aussteller, Domain, Gültigkeitszeitraum
 
 # Vollständige Kette vorhanden?
-openssl s_client -connect DEINE_DOMAIN.de:443 -servername DEINE_DOMAIN.de < /dev/null 2>/dev/null \
+openssl s_client -connect placard.luwilab.work:443 -servername placard.luwilab.work < /dev/null 2>/dev/null \
   | grep -E "subject|issuer"
 # Es sollten mehrere Zeilen erscheinen (Zertifikat + Zwischenzertifikat/e)
 ```
@@ -510,7 +516,7 @@ crontab -e
 Zeile hinzufügen (prüft täglich, warnt 30 Tage vorher per E-Mail):
 
 ```cron
-0 8 * * * openssl x509 -enddate -noout -in /etc/ssl/placard/fullchain.pem | grep -v "notAfter=$(date -d '+30 days' '+%b')" || echo "SSL-Zertifikat läuft in weniger als 30 Tagen ab!" | mail -s "SSL-Warnung DEINE_DOMAIN.de" admin@DEINE_DOMAIN.de
+0 8 * * * openssl x509 -enddate -noout -in /etc/ssl/placard/fullchain.pem | grep -v "notAfter=$(date -d '+30 days' '+%b')" || echo "SSL-Zertifikat läuft in weniger als 30 Tagen ab!" | mail -s "SSL-Warnung placard.luwilab.work" admin@placard.luwilab.work
 ```
 
 Oder einfacher — Ablaufdatum einmalig anzeigen und im Kalender eintragen:
@@ -526,11 +532,11 @@ Falls der Schlüssel beim Start nach einem Passwort fragt (Nginx startet dann ni
 
 ```bash
 # Prüfen ob Schlüssel verschlüsselt ist:
-head -2 deine-domain.key
+head -2 placard.key
 # → "Proc-Type: 4,ENCRYPTED" → verschlüsselt; andernfalls → kein Passwort
 
 # Passwort entfernen (Originalpasswort wird einmal abgefragt):
-sudo openssl rsa -in deine-domain.key -out /etc/ssl/placard/privkey.pem
+sudo openssl rsa -in placard.key -out /etc/ssl/placard/privkey.pem
 sudo chmod 600 /etc/ssl/placard/privkey.pem
 ```
 
@@ -543,7 +549,7 @@ sudo mkdir -p /etc/ssl/placard
 sudo openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
   -keyout /etc/ssl/placard/privkey.pem \
   -out    /etc/ssl/placard/fullchain.pem \
-  -subj   "/CN=DEINE_DOMAIN.de"
+  -subj   "/CN=placard.luwilab.work"
 sudo chmod 600 /etc/ssl/placard/privkey.pem
 ```
 
@@ -553,7 +559,9 @@ Nginx-Konfiguration wie in Option C verwenden (ohne `ssl_dhparam` falls nicht ge
 
 ---
 
-## 13. Firewall konfigurieren
+## 13. Firewall und Systemhärtung
+
+### Firewall (UFW)
 
 ```bash
 sudo ufw default deny incoming
@@ -575,7 +583,126 @@ OpenSSH                    ALLOW       Anywhere
 Nginx Full                 ALLOW       Anywhere
 ```
 
-> Port 3002 bleibt geschlossen — nur Nginx hat Zugriff auf die App.
+> Port 3002 bleibt geschlossen — nur Nginx hat Zugriff auf die App. Von außen ist ausschließlich SSH (22), HTTP (80) und HTTPS (443) erreichbar; alles andere wird standardmäßig verworfen (`default deny incoming`).
+
+### Fail2ban (SSH-Schutz)
+
+fail2ban wurde bereits in [Schritt 2](#2-systempakete-installieren) mitinstalliert. Aktivieren und die `sshd`-Jail prüfen:
+
+```bash
+sudo systemctl enable --now fail2ban
+sudo fail2ban-client status sshd
+```
+
+> fail2ban sperrt IPs nach wiederholten fehlgeschlagenen SSH-Anmeldeversuchen automatisch. Das ist eine serverweite Absicherung (nicht Placard-spezifisch), gehört aber zur Standardhärtung jedes Produktionsservers.
+
+Zusätzlich empfiehlt sich, X11-Forwarding serverweit zu deaktivieren (wird ohnehin nicht benötigt), in `/etc/ssh/sshd_config`:
+
+```
+X11Forwarding no
+```
+
+```bash
+sudo systemctl reload sshd
+```
+
+### Nginx-Härtung (TLS, Server-Tokens, Rate-Limiting)
+
+Diese Einstellungen gelten größtenteils **serverweit** (`/etc/nginx/nginx.conf`) und wirken sich damit auf alle auf diesem Server gehosteten vHosts aus — inklusive Placard.
+
+In der `http {}`-Sektion von `/etc/nginx/nginx.conf`:
+
+```nginx
+http {
+    # ...
+
+    # Nur moderne, sichere TLS-Versionen zulassen (gilt für alle vHosts).
+    # Ohne diese Zeile werden ggf. veraltete TLSv1/1.1 mit angeboten.
+    ssl_protocols TLSv1.2 TLSv1.3;
+
+    # Nginx-Version nicht in Fehlerseiten und im Server-Header preisgeben
+    server_tokens off;
+
+    # Rate-Limit-Zone für Login-/Session-Endpunkte (5 Requests/Minute pro IP)
+    limit_req_zone $binary_remote_addr zone=login_limit:10m rate=5r/m;
+}
+```
+
+Im Placard-vHost (`/etc/nginx/sites-available/placard`, Server-Block auf Port 443) ergänzen:
+
+```nginx
+    # Rate-Limiting auf die NextAuth-Login-/Session-Routen anwenden
+    location /api/auth/ {
+        limit_req zone=login_limit burst=10 nodelay;
+        proxy_pass         http://localhost:3002;
+        proxy_http_version 1.1;
+        proxy_set_header   Host $host;
+        proxy_set_header   X-Real-IP $remote_addr;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+    }
+
+    # Defense-in-depth: .git-Verzeichnis niemals ausliefern, falls versehentlich vorhanden
+    location ~ /\.git {
+        deny all;
+    }
+```
+
+Konfiguration testen und neu laden:
+
+```bash
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+### Placard als nicht-root-Benutzer betreiben (svc-placard)
+
+PM2 sollte niemals produktiv als `root` laufen. Dafür wird ein dedizierter, unprivilegierter Systembenutzer angelegt:
+
+```bash
+sudo useradd --system --no-create-home --shell /usr/sbin/nologin svc-placard
+sudo chown -R svc-placard:svc-placard /opt/placard
+```
+
+In `ecosystem.config.js` wird der Prozess auf diesen Benutzer umgestellt:
+
+```javascript
+module.exports = {
+  apps: [
+    {
+      name: 'placard',
+      script: 'node_modules/.bin/next',
+      args: 'start',
+      cwd: '/opt/placard',
+      env: {
+        NODE_ENV: 'production',
+        PORT: 3002,
+      },
+      instances: 1,
+      exec_mode: 'fork',
+      uid: 'svc-placard',
+      gid: 'svc-placard',
+      autorestart: true,
+      max_restarts: 10,
+      watch: false,
+      max_memory_restart: '512M',
+    },
+  ],
+}
+```
+
+Prozess neu anlegen, damit die neuen `uid`/`gid`-Einstellungen greifen (ein einfaches `pm2 reload` reicht dafür nicht aus):
+
+```bash
+pm2 delete placard
+pm2 start ecosystem.config.js
+pm2 save
+pm2 status   # "placard" sollte wieder "online" sein, jetzt unter svc-placard
+```
+
+> **Wichtig — warum `fork` statt `cluster`:** Placard lief zuvor im **Cluster-Modus mit 2 Instanzen** (`exec_mode: 'cluster', instances: 2`) für Lastverteilung über mehrere CPU-Kerne. Beim Umstieg auf den nicht-root-Benutzer `svc-placard` scheitern Cluster-Worker jedoch beim Start: Sie versuchen, ihre Log-Dateien selbst zu öffnen, *nachdem* sie die Rechte auf `svc-placard` reduziert haben — `/root/.pm2/logs` ist aber wegen der Zugriffsrechte auf `/root` (Modus 700) für andere Benutzer nicht erreichbar, wodurch die Worker sofort mit einem Fehler abbrechen. Das ist eine Einschränkung des PM2-Cluster-Modus und lässt sich nicht allein durch Anpassen der Rechte auf dem Log-Verzeichnis sauber beheben, ohne unnötige Zugriffsrechte zu öffnen. Im **Fork-Modus** öffnet PM2 die Log-Datei dagegen noch als `root`, *bevor* es die Rechte für den Kindprozess auf `svc-placard` absenkt — das funktioniert deshalb zuverlässig und entspricht dem Muster, nach dem die anderen Anwendungen auf diesem Server bereits laufen.
+>
+> **Praktische Auswirkung:** Placard verteilt Anfragen dadurch nicht mehr über mehrere CPU-Kerne (kein Load-Balancing zwischen Instanzen). Für ein kleines internes Raumbuchungs-Display-Tool ist das in der Praxis vernachlässigbar — falls jedoch ein wahrgenommenes Kapazitäts- oder Performance-Problem untersucht wird oder auffällt, dass `ecosystem.config.js` keinen Cluster-Modus mehr enthält, ist dies der Grund.
 
 ---
 
@@ -592,7 +719,7 @@ const p = new PrismaClient();
 p.user.create({
   data: {
     name: 'Admin',
-    email: 'admin@DEINE_DOMAIN.de',
+    email: 'admin@placard.luwilab.work',
     password: bcrypt.hashSync('SICHERES_PASSWORT', 12),
     role: 'ADMIN'
   }
@@ -606,7 +733,7 @@ p.user.create({
 "
 ```
 
-Anmeldung über `https://DEINE_DOMAIN.de/login` mit der eingetragenen E-Mail und dem Passwort.
+Anmeldung über `https://placard.luwilab.work/login` mit der eingetragenen E-Mail und dem Passwort.
 
 Weitere Admins können danach über das Admin-Panel unter `/users` angelegt werden.
 
@@ -623,7 +750,7 @@ Im Admin-Panel: **Räume** → **Webhooks aktivieren**
 Oder per curl (Session-Cookie aus dem Browser entnehmen):
 
 ```bash
-curl -X POST https://DEINE_DOMAIN.de/api/graph/subscribe \
+curl -X POST https://placard.luwilab.work/api/graph/subscribe \
   -H "Cookie: authjs.session-token=SESSION_TOKEN_AUS_DEM_BROWSER"
 ```
 
@@ -636,7 +763,7 @@ crontab -e
 Folgende Zeile hinzufügen:
 
 ```cron
-0 */6 * * * curl -s -H "Authorization: Bearer CRON_SECRET_AUS_ENV" https://DEINE_DOMAIN.de/api/cron/renew-subscriptions >> /var/log/placard-cron.log 2>&1
+0 */6 * * * curl -s -H "Authorization: Bearer CRON_SECRET_AUS_ENV" https://placard.luwilab.work/api/cron/renew-subscriptions >> /var/log/placard-cron.log 2>&1
 ```
 
 > `CRON_SECRET_AUS_ENV` durch den Wert aus `.env.local` ersetzen.
@@ -656,14 +783,14 @@ Admin-Panel → **Status** (`/status`):
 ```bash
 # 1. PM2-Status
 pm2 status
-# → placard: online, 2 Instanzen
+# → placard: online, 1 Instanz (Fork-Modus, Benutzer svc-placard)
 
 # 2. App antwortet
 curl -I http://localhost:3002
 # → HTTP/1.1 200 OK
 
 # 3. Nginx leitet korrekt weiter
-curl -I https://DEINE_DOMAIN.de
+curl -I https://placard.luwilab.work
 # → HTTP/2 200
 
 # 4. Datenbank erreichbar
@@ -680,9 +807,9 @@ pm2 logs placard --lines 20 --nostream
 ```
 
 Abschließend im Browser öffnen:
-- `https://DEINE_DOMAIN.de` → Startseite / Raumübersicht
-- `https://DEINE_DOMAIN.de/login` → Login mit Admin-Credentials
-- `https://DEINE_DOMAIN.de/status` → Systemstatus (nach Login)
+- `https://placard.luwilab.work` → Startseite / Raumübersicht
+- `https://placard.luwilab.work/login` → Login mit Admin-Credentials
+- `https://placard.luwilab.work/status` → Systemstatus (nach Login)
 
 ---
 
@@ -703,11 +830,11 @@ npx prisma migrate deploy
 # 4. Neu bauen
 npm run build
 
-# 5. PM2 neu starten (zero-downtime durch Cluster-Modus)
+# 5. PM2 neu starten
 pm2 reload placard
 ```
 
-> `pm2 reload` (nicht `restart`) nutzt den Cluster-Modus für Rolling Restarts ohne Downtime.
+> **Hinweis:** Seit der Umstellung auf den nicht-root-Benutzer `svc-placard` läuft Placard im **Fork-Modus mit einer einzigen Instanz** (siehe [Schritt 13](#13-firewall-und-systemhärtung)), nicht mehr im Cluster-Modus mit 2 Instanzen. `pm2 reload` funktioniert weiterhin, bietet bei nur einer Instanz aber keinen echten Zero-Downtime-Rolling-Restart mehr — während des Neustarts der einzigen Instanz ist die App kurzzeitig nicht erreichbar. Für ein internes Tool ist das in der Regel unkritisch.
 
 ---
 
@@ -716,7 +843,7 @@ pm2 reload placard
 | Datei / Befehl | Beschreibung |
 |---|---|
 | `/opt/placard/.env.local` | Alle Secrets und Konfiguration |
-| `/opt/placard/ecosystem.config.js` | PM2-Konfiguration (Port, Cluster) |
+| `/opt/placard/ecosystem.config.js` | PM2-Konfiguration (Port, Prozessbenutzer `svc-placard`, Fork-Modus) |
 | `/etc/nginx/sites-available/placard` | Nginx vHost-Konfiguration |
 | `pm2 status` | Prozessstatus |
 | `pm2 logs placard` | Live-Logs |

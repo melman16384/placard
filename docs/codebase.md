@@ -237,14 +237,16 @@ module.exports = {
     args: 'start',
     cwd: '/opt/room-booking',   // Arbeitsverzeichnis
     env: { NODE_ENV: 'production', PORT: 3002 },
-    instances: 2,               // 2 CPU-Kerne
-    exec_mode: 'cluster',       // Node-Cluster für Zero-Downtime
+    instances: 1,               // Fork-Modus, 1 Instanz
+    exec_mode: 'fork',
     max_memory_restart: '512M',
+    uid: 'svc-placard',         // nicht-root Service-User
+    gid: 'svc-placard',
   }],
 }
 ```
 
-PM2 startet zwei Next.js-Instanzen im Cluster-Modus. Eingehende Requests werden zwischen beiden verteilt. `pm2 reload placard` führt Rolling Restarts durch — eine Instanz bleibt immer aktiv.
+PM2 startet Next.js im Fork-Modus als eine einzelne Instanz unter dem dedizierten Service-User `svc-placard` (nicht root). Ursprünglich lief die App im Cluster-Modus mit 2 Instanzen; das wurde bei der Umstellung auf einen nicht-root-Benutzer verworfen, da PM2s Cluster-Worker ihre Log-Dateien selbst öffnen — nach dem Rechteabbau ist `/root/.pm2/logs` für den Service-User aber nicht erreichbar, wodurch die Worker sofort abstürzten. Im Fork-Modus öffnet PM2 die Log-Datei bereits als root, bevor die Rechte fallen gelassen werden, was funktioniert. Praktische Folge: kein Lastausgleich über mehrere CPU-Kerne mehr — für dieses interne Tool unkritisch. Siehe [deployment-ubuntu.md](deployment-ubuntu.md) für Details.
 
 ---
 
@@ -1106,7 +1108,7 @@ Admin: Räume → "Webhooks aktivieren"
 ```
 Server-Cron (alle 6h):
   curl -H "Authorization: Bearer {CRON_SECRET}"
-       https://DEINE_DOMAIN.de/api/cron/renew-subscriptions
+       https://placard.luwilab.work/api/cron/renew-subscriptions
 
   └─ GET /api/cron/renew-subscriptions
        └─ Auth-Header prüfen (Bearer CRON_SECRET)

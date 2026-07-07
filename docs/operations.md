@@ -26,6 +26,8 @@ pm2 startup   # gibt einen Befehl aus — diesen ausführen
 
 PM2-Konfiguration: `/opt/placard/ecosystem.config.js`
 
+> Der Prozess läuft **nicht mehr als root**, sondern als dedizierter, unprivilegierter Systembenutzer `svc-placard` (Fork-Modus, 1 Instanz statt zuvor Cluster-Modus mit 2 Instanzen). Details und Hintergrund dazu: [deployment-ubuntu.md, Abschnitt 13](deployment-ubuntu.md#13-firewall-und-systemhärtung).
+
 ---
 
 ## Nginx
@@ -45,7 +47,22 @@ tail -f /var/log/nginx/error.log
 tail -f /var/log/nginx/access.log
 ```
 
-Konfigurationsdatei: `/etc/nginx/sites-available/DEINE_DOMAIN.de`
+Konfigurationsdatei: `/etc/nginx/sites-available/placard.luwilab.work`
+
+---
+
+## Sicherheit
+
+Der Server wurde einer Hardening-Maßnahme unterzogen. Kurzüberblick (vollständige Details und Begründungen: [deployment-ubuntu.md, Abschnitt 13](deployment-ubuntu.md#13-firewall-und-systemhärtung)):
+
+- **Firewall (UFW):** aktiv, `default deny incoming` — von außen sind nur SSH (22), HTTP (80) und HTTPS (443) erreichbar. Port 3002 (Placard) ist nicht mehr direkt aus dem Internet erreichbar, sondern nur über den Nginx-Reverse-Proxy.
+- **fail2ban:** serverweit aktiv mit einer `sshd`-Jail — schützt SSH gegen Brute-Force-Versuche (nicht Placard-spezifisch).
+- **Nginx-Härtung:** `ssl_protocols` global auf TLSv1.2/TLSv1.3 beschränkt, `server_tokens off`, Rate-Limiting (`login_limit`, 5 Req./Min. pro IP) auf `/api/auth/`, sowie `location ~ /\.git { deny all; }` als Defense-in-Depth.
+- **Nicht-root-Prozess:** PM2 führt Placard als `svc-placard` aus (siehe PM2-Abschnitt oben).
+- **Dateiberechtigungen:** `.env` und `.env.local` sind `chmod 600` und gehören `svc-placard` (vorher versehentlich 644/world-readable).
+- **SSH:** X11Forwarding ist serverweit deaktiviert.
+
+`NEXTAUTH_SECRET` wurde dabei **nicht** rotiert — nur die Dateiberechtigungen der `.env`-Dateien wurden korrigiert.
 
 ---
 
@@ -75,7 +92,7 @@ Status-Seite → **„Webhooks erneuern"**
 ```bash
 # Alle 6 Stunden erneuern
 crontab -e
-0 */6 * * * curl -s -H "Authorization: Bearer CRON_SECRET_AUS_ENV" https://DEINE_DOMAIN.de/api/cron/renew-subscriptions >> /var/log/placard-cron.log 2>&1
+0 */6 * * * curl -s -H "Authorization: Bearer CRON_SECRET_AUS_ENV" https://placard.luwilab.work/api/cron/renew-subscriptions >> /var/log/placard-cron.log 2>&1
 ```
 
 ### Status prüfen
@@ -116,7 +133,7 @@ pm2 restart placard
 | `/opt/placard/prisma/schema.prisma` | Datenbankschema |
 | `/opt/placard/prisma/migrations/` | Migrationshistorie |
 | `/opt/placard/ecosystem.config.js` | PM2-Konfiguration |
-| `/etc/nginx/sites-available/DEINE_DOMAIN.de` | Nginx vHost |
+| `/etc/nginx/sites-available/placard.luwilab.work` | Nginx vHost |
 | `/etc/ssl/placard/` | SSL-Zertifikat (selbstsigniert für Origin) |
 
 ---
@@ -131,6 +148,8 @@ pm2 logs placard --lines 50
 # - .env.local fehlt oder Werte fehlen
 # - Datenbankverbindung schlägt fehl
 # - Port 3002 bereits belegt
+# - Rechteproblem: Dateien/Verzeichnisse gehören nicht svc-placard
+#   (Prozess läuft als svc-placard, nicht mehr als root)
 ```
 
 ### Datenbankverbindung schlägt fehl
